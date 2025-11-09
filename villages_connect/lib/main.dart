@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'screens/home_dashboard.dart';
 import 'screens/event_directory.dart';
 import 'screens/rec_center_directory.dart';
@@ -8,7 +10,9 @@ import 'screens/login_screen.dart';
 import 'screens/registration_screen.dart';
 import 'screens/profile_screen.dart';
 import 'services/auth_service.dart';
+import 'services/notification_service.dart';
 import 'widgets/navigation_guard.dart';
+import 'widgets/notification_scheduler.dart';
 
 void main() {
   runApp(const VillagesConnectApp());
@@ -23,11 +27,33 @@ class VillagesConnectApp extends StatefulWidget {
 
 class _VillagesConnectAppState extends State<VillagesConnectApp> {
   final AuthService _authService = AuthService();
+  final NotificationService _notificationService = NotificationService();
 
   @override
   void initState() {
     super.initState();
-    _authService.initialize();
+    _initializeServices();
+  }
+
+  Future<void> _initializeServices() async {
+    try {
+      // Initialize Firebase
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+
+      // Initialize auth service
+      await _authService.initialize();
+
+      // Initialize notification service
+      await _notificationService.initialize();
+
+      // Request notification permissions
+      await _notificationService.requestPermissions();
+
+    } catch (e) {
+      debugPrint('Error initializing services: $e');
+    }
   }
 
   @override
@@ -35,6 +61,7 @@ class _VillagesConnectAppState extends State<VillagesConnectApp> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: _authService),
+        ChangeNotifierProvider.value(value: _notificationService),
       ],
       child: Consumer<AuthService>(
         builder: (context, authService, _) {
@@ -73,9 +100,11 @@ class _VillagesConnectAppState extends State<VillagesConnectApp> {
               ),
             ),
             navigatorObservers: [appRouteObserver],
-            home: authService.isAuthenticated
-                ? const MainNavigation()
-                : const LoginScreen(),
+            home: NotificationScheduler(
+              child: authService.isAuthenticated
+                  ? const MainNavigation()
+                  : const LoginScreen(),
+            ),
             routes: {
               '/login': (context) => const LoginScreen(),
               '/register': (context) => const RegistrationScreen(),

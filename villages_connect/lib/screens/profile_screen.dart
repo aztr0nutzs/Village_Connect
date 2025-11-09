@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
+import '../services/notification_service.dart';
 
 // Profile Screen
 class ProfileScreen extends StatefulWidget {
@@ -307,13 +309,95 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 // Quick Actions
                 Column(
                   children: [
-                    ListTile(
-                      leading: const Icon(Icons.notifications),
-                      title: const Text('Notification Settings'),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Notification settings coming soon!')),
+                    Consumer<NotificationService>(
+                      builder: (context, notificationService, child) {
+                        return ExpansionTile(
+                          leading: const Icon(Icons.notifications),
+                          title: const Text('Notification Settings'),
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              child: Column(
+                                children: [
+                                  SwitchListTile(
+                                    title: const Text('Event Reminders'),
+                                    subtitle: const Text('Get notified about upcoming events'),
+                                    value: notificationService.preferences.eventReminders,
+                                    onChanged: (value) {
+                                      final newPrefs = NotificationPreferences(
+                                        eventReminders: value,
+                                        emergencyAlerts: notificationService.preferences.emergencyAlerts,
+                                        communityAnnouncements: notificationService.preferences.communityAnnouncements,
+                                        messageNotifications: notificationService.preferences.messageNotifications,
+                                        dailyDigest: notificationService.preferences.dailyDigest,
+                                      );
+                                      notificationService.updatePreferences(newPrefs);
+                                    },
+                                  ),
+                                  SwitchListTile(
+                                    title: const Text('Emergency Alerts'),
+                                    subtitle: const Text('Critical emergency notifications'),
+                                    value: notificationService.preferences.emergencyAlerts,
+                                    onChanged: (value) {
+                                      final newPrefs = NotificationPreferences(
+                                        eventReminders: notificationService.preferences.eventReminders,
+                                        emergencyAlerts: value,
+                                        communityAnnouncements: notificationService.preferences.communityAnnouncements,
+                                        messageNotifications: notificationService.preferences.messageNotifications,
+                                        dailyDigest: notificationService.preferences.dailyDigest,
+                                      );
+                                      notificationService.updatePreferences(newPrefs);
+                                    },
+                                  ),
+                                  SwitchListTile(
+                                    title: const Text('Community Announcements'),
+                                    subtitle: const Text('News and updates from the community'),
+                                    value: notificationService.preferences.communityAnnouncements,
+                                    onChanged: (value) {
+                                      final newPrefs = NotificationPreferences(
+                                        eventReminders: notificationService.preferences.eventReminders,
+                                        emergencyAlerts: notificationService.preferences.emergencyAlerts,
+                                        communityAnnouncements: value,
+                                        messageNotifications: notificationService.preferences.messageNotifications,
+                                        dailyDigest: notificationService.preferences.dailyDigest,
+                                      );
+                                      notificationService.updatePreferences(newPrefs);
+                                    },
+                                  ),
+                                  SwitchListTile(
+                                    title: const Text('Message Notifications'),
+                                    subtitle: const Text('New messages and replies'),
+                                    value: notificationService.preferences.messageNotifications,
+                                    onChanged: (value) {
+                                      final newPrefs = NotificationPreferences(
+                                        eventReminders: notificationService.preferences.eventReminders,
+                                        emergencyAlerts: notificationService.preferences.emergencyAlerts,
+                                        communityAnnouncements: notificationService.preferences.communityAnnouncements,
+                                        messageNotifications: value,
+                                        dailyDigest: notificationService.preferences.dailyDigest,
+                                      );
+                                      notificationService.updatePreferences(newPrefs);
+                                    },
+                                  ),
+                                  SwitchListTile(
+                                    title: const Text('Daily Digest'),
+                                    subtitle: const Text('Daily summary of community activity'),
+                                    value: notificationService.preferences.dailyDigest,
+                                    onChanged: (value) {
+                                      final newPrefs = NotificationPreferences(
+                                        eventReminders: notificationService.preferences.eventReminders,
+                                        emergencyAlerts: notificationService.preferences.emergencyAlerts,
+                                        communityAnnouncements: notificationService.preferences.communityAnnouncements,
+                                        messageNotifications: notificationService.preferences.messageNotifications,
+                                        dailyDigest: value,
+                                      );
+                                      notificationService.updatePreferences(newPrefs);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         );
                       },
                     ),
@@ -375,6 +459,57 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
           ),
         ),
+      ),
+      // Add demo notification buttons at the bottom for testing
+      bottomNavigationBar: Consumer<NotificationService>(
+        builder: (context, notificationService, child) {
+          return Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              border: Border(top: BorderSide(color: Colors.grey[300]!)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Notification Demo',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () => notificationService.sendTestNotification(),
+                        icon: const Icon(Icons.notifications, size: 18),
+                        label: const Text('Test', style: TextStyle(fontSize: 14)),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () => notificationService.sendEmergencyAlert(
+                          title: 'Emergency Demo',
+                          message: 'This is a test emergency notification.',
+                        ),
+                        icon: const Icon(Icons.warning, size: 18),
+                        label: const Text('Alert', style: TextStyle(fontSize: 14)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
