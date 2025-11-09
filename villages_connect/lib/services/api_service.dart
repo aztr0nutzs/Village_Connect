@@ -218,7 +218,7 @@ class ApiEvent {
         currentAttendees: json['currentAttendees'] ?? json['registered'] ?? 0,
         status: json['status'] ?? 'upcoming',
         imageUrl: json['imageUrl'] ?? json['image'] ?? '',
-        registrationUrl: json['registrationUrl'] ?? json['register_url'] ?? '',
+        registrationUrl: json['registrationUrl'] ?? json['register_url'] ?? null,
         tags: List<String>.from(json['tags'] ?? []),
       );
 
