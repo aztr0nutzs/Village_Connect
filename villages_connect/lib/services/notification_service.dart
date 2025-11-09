@@ -22,6 +22,22 @@ class NotificationPreferences {
     this.dailyDigest = false,
   });
 
+  NotificationPreferences copyWith({
+    bool? eventReminders,
+    bool? emergencyAlerts,
+    bool? communityAnnouncements,
+    bool? messageNotifications,
+    bool? dailyDigest,
+  }) {
+    return NotificationPreferences(
+      eventReminders: eventReminders ?? this.eventReminders,
+      emergencyAlerts: emergencyAlerts ?? this.emergencyAlerts,
+      communityAnnouncements: communityAnnouncements ?? this.communityAnnouncements,
+      messageNotifications: messageNotifications ?? this.messageNotifications,
+      dailyDigest: dailyDigest ?? this.dailyDigest,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
         'eventReminders': eventReminders,
         'emergencyAlerts': emergencyAlerts,

@@ -11,6 +11,7 @@ import 'screens/registration_screen.dart';
 import 'screens/profile_screen.dart';
 import 'services/auth_service.dart';
 import 'services/notification_service.dart';
+import 'services/storage_service.dart';
 import 'widgets/navigation_guard.dart';
 import 'widgets/notification_scheduler.dart';
 
@@ -28,6 +29,7 @@ class VillagesConnectApp extends StatefulWidget {
 class _VillagesConnectAppState extends State<VillagesConnectApp> {
   final AuthService _authService = AuthService();
   final NotificationService _notificationService = NotificationService();
+  final StorageService _storageService = StorageService();
 
   @override
   void initState() {
@@ -41,6 +43,9 @@ class _VillagesConnectAppState extends State<VillagesConnectApp> {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
+
+      // Initialize storage service first
+      await _storageService.initialize();
 
       // Initialize auth service
       await _authService.initialize();
@@ -62,6 +67,7 @@ class _VillagesConnectAppState extends State<VillagesConnectApp> {
       providers: [
         ChangeNotifierProvider.value(value: _authService),
         ChangeNotifierProvider.value(value: _notificationService),
+        ChangeNotifierProvider.value(value: _storageService),
       ],
       child: Consumer<AuthService>(
         builder: (context, authService, _) {

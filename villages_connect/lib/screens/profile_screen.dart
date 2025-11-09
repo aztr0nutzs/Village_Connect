@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import '../services/notification_service.dart';
+import '../services/storage_service.dart';
 
 // Profile Screen
 class ProfileScreen extends StatefulWidget {
@@ -28,12 +29,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _loadUserData() {
-    // This would normally come from AuthService
-    // For demo purposes, we'll use mock data
+    final storageService = context.read<StorageService>();
+
+    // Load from storage service if available, otherwise use defaults
     _firstNameController.text = 'John';
     _lastNameController.text = 'Doe';
     _phoneController.text = '(352) 555-0123';
     _addressController.text = '123 Palm Drive, The Villages, FL 32162';
+
+    // In a real app, this would load from the storage service
+    // final userData = await storageService.getUserData();
   }
 
   Future<void> _saveProfile() async {
@@ -324,13 +329,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     subtitle: const Text('Get notified about upcoming events'),
                                     value: notificationService.preferences.eventReminders,
                                     onChanged: (value) {
-                                      final newPrefs = NotificationPreferences(
-                                        eventReminders: value,
-                                        emergencyAlerts: notificationService.preferences.emergencyAlerts,
-                                        communityAnnouncements: notificationService.preferences.communityAnnouncements,
-                                        messageNotifications: notificationService.preferences.messageNotifications,
-                                        dailyDigest: notificationService.preferences.dailyDigest,
-                                      );
+                                      final newPrefs = notificationService.preferences.copyWith(eventReminders: value);
                                       notificationService.updatePreferences(newPrefs);
                                     },
                                   ),
@@ -339,13 +338,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     subtitle: const Text('Critical emergency notifications'),
                                     value: notificationService.preferences.emergencyAlerts,
                                     onChanged: (value) {
-                                      final newPrefs = NotificationPreferences(
-                                        eventReminders: notificationService.preferences.eventReminders,
-                                        emergencyAlerts: value,
-                                        communityAnnouncements: notificationService.preferences.communityAnnouncements,
-                                        messageNotifications: notificationService.preferences.messageNotifications,
-                                        dailyDigest: notificationService.preferences.dailyDigest,
-                                      );
+                                      final newPrefs = notificationService.preferences.copyWith(emergencyAlerts: value);
                                       notificationService.updatePreferences(newPrefs);
                                     },
                                   ),
@@ -354,13 +347,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     subtitle: const Text('News and updates from the community'),
                                     value: notificationService.preferences.communityAnnouncements,
                                     onChanged: (value) {
-                                      final newPrefs = NotificationPreferences(
-                                        eventReminders: notificationService.preferences.eventReminders,
-                                        emergencyAlerts: notificationService.preferences.emergencyAlerts,
-                                        communityAnnouncements: value,
-                                        messageNotifications: notificationService.preferences.messageNotifications,
-                                        dailyDigest: notificationService.preferences.dailyDigest,
-                                      );
+                                      final newPrefs = notificationService.preferences.copyWith(communityAnnouncements: value);
                                       notificationService.updatePreferences(newPrefs);
                                     },
                                   ),
@@ -369,13 +356,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     subtitle: const Text('New messages and replies'),
                                     value: notificationService.preferences.messageNotifications,
                                     onChanged: (value) {
-                                      final newPrefs = NotificationPreferences(
-                                        eventReminders: notificationService.preferences.eventReminders,
-                                        emergencyAlerts: notificationService.preferences.emergencyAlerts,
-                                        communityAnnouncements: notificationService.preferences.communityAnnouncements,
-                                        messageNotifications: value,
-                                        dailyDigest: notificationService.preferences.dailyDigest,
-                                      );
+                                      final newPrefs = notificationService.preferences.copyWith(messageNotifications: value);
                                       notificationService.updatePreferences(newPrefs);
                                     },
                                   ),
@@ -384,13 +365,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     subtitle: const Text('Daily summary of community activity'),
                                     value: notificationService.preferences.dailyDigest,
                                     onChanged: (value) {
-                                      final newPrefs = NotificationPreferences(
-                                        eventReminders: notificationService.preferences.eventReminders,
-                                        emergencyAlerts: notificationService.preferences.emergencyAlerts,
-                                        communityAnnouncements: notificationService.preferences.communityAnnouncements,
-                                        messageNotifications: notificationService.preferences.messageNotifications,
-                                        dailyDigest: value,
-                                      );
+                                      final newPrefs = notificationService.preferences.copyWith(dailyDigest: value);
                                       notificationService.updatePreferences(newPrefs);
                                     },
                                   ),
