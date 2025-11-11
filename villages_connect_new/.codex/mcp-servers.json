@@ -1,0 +1,35 @@
+{
+  "$schema": "https://modelcontextprotocol.io/schemas/1.0/configuration.schema.json",
+  "mcpServers": {
+    "villages-filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "lib",
+        "android",
+        "ios",
+        "web",
+        "test",
+        "assets"
+      ],
+      "env": {
+        "MCP_SERVER_FS_EXPOSE_HIDDEN": "false"
+      },
+      "metadata": {
+        "description": "Filesystem MCP server exposing Flutter source, platform shells, tests, and shipped assets."
+      }
+    },
+    "villages-third-party": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "third_party"
+      ],
+      "metadata": {
+        "description": "Restrictive MCP view over vendored timezone and other embedded third-party sources."
+      }
+    }
+  }
+}
