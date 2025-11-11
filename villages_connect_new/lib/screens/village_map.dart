@@ -105,7 +105,7 @@ class MapLocation {
 
 // Village Map Screen
 class VillageMap extends StatefulWidget {
-  const VillageMap({Key? key}) : super(key: key);
+  const VillageMap({super.key});
 
   @override
   State<VillageMap> createState() => _VillageMapState();

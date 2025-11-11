@@ -381,7 +381,7 @@ class AccessibilityService extends ChangeNotifier {
     String text, {
     required double baseFontSize,
     required AccessibilityService accessibility,
-    Key? key,
+    Key? widgetKey,
     TextStyle? style,
     TextAlign? textAlign,
     int? maxLines,
@@ -389,7 +389,7 @@ class AccessibilityService extends ChangeNotifier {
   }) {
     return Text(
       text,
-      key: key,
+      key: widgetKey,
       style: (style ?? const TextStyle()).copyWith(
         fontSize: accessibility.getScaledFontSize(baseFontSize),
       ),
@@ -404,7 +404,7 @@ class AccessibilityService extends ChangeNotifier {
     required Widget child,
     required VoidCallback onPressed,
     required AccessibilityService accessibility,
-    Key? key,
+    Key? widgetKey,
     ButtonStyle? style,
     FocusNode? focusNode,
   }) {
@@ -412,7 +412,7 @@ class AccessibilityService extends ChangeNotifier {
       minimumSize: const Size(48, 48),
     );
     return ElevatedButton(
-      key: key,
+      key: widgetKey,
       onPressed: onPressed,
       style: style?.merge(minSizeStyle) ?? minSizeStyle,
       focusNode: focusNode,

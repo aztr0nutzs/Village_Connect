@@ -6,7 +6,7 @@ import '../services/storage_service.dart';
 
 // Emergency Contact Hub Screen
 class EmergencyContactHub extends StatefulWidget {
-  const EmergencyContactHub({Key? key}) : super(key: key);
+  const EmergencyContactHub({super.key});
 
   @override
   State<EmergencyContactHub> createState() => _EmergencyContactHubState();
@@ -435,12 +435,12 @@ class EmergencyContactCard extends StatelessWidget {
   final VoidCallback? onTogglePin;
 
   const EmergencyContactCard({
-    Key? key,
+    super.key,
     required this.contact,
     required this.onCall,
     this.onShowLocation,
     this.onTogglePin,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

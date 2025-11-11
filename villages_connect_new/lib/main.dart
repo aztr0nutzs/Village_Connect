@@ -71,7 +71,7 @@ void main() async {
 class InitializationErrorScreen extends StatelessWidget {
   final Object error;
 
-  const InitializationErrorScreen({Key? key, required this.error}) : super(key: key);
+  const InitializationErrorScreen({required this.error, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +105,7 @@ class InitializationErrorScreen extends StatelessWidget {
 }
 
 class VillagesConnectApp extends StatelessWidget {
-  const VillagesConnectApp({Key? key}) : super(key: key);
+  const VillagesConnectApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -328,7 +328,7 @@ class VillagesConnectApp extends StatelessWidget {
 }
 
 class AuthWrapper extends StatelessWidget {
-  const AuthWrapper({Key? key}) : super(key: key);
+  const AuthWrapper({super.key});
 
   @override
   Widget build(BuildContext context) {

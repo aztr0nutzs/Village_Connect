@@ -26,9 +26,9 @@ class DashboardCard extends StatelessWidget {
   final DashboardItem item;
 
   const DashboardCard({
-    Key? key,
     required this.item,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +80,7 @@ class DashboardCard extends StatelessWidget {
 
 // Home Dashboard Screen
 class HomeDashboard extends StatefulWidget {
-  const HomeDashboard({Key? key}) : super(key: key);
+  const HomeDashboard({super.key});
 
   @override
   State<HomeDashboard> createState() => _HomeDashboardState();
@@ -134,10 +134,11 @@ class _HomeDashboardState extends State<HomeDashboard> {
         newsError = 'Failed to load news: ${e.toString()}';
       });
     } finally {
-      if (!mounted) return;
-      setState(() {
-        isLoadingNews = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoadingNews = false;
+        });
+      }
     }
   }
 
@@ -168,10 +169,11 @@ class _HomeDashboardState extends State<HomeDashboard> {
         eventsError = 'Failed to load events: ${e.toString()}';
       });
     } finally {
-      if (!mounted) return;
-      setState(() {
-        isLoadingEvents = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoadingEvents = false;
+        });
+      }
     }
   }
 

@@ -4,7 +4,7 @@ import '../services/api_service.dart';
 
 // Event Calendar Screen
 class EventCalendar extends StatefulWidget {
-  const EventCalendar({Key? key}) : super(key: key);
+  const EventCalendar({super.key});
 
   @override
   State<EventCalendar> createState() => _EventCalendarState();

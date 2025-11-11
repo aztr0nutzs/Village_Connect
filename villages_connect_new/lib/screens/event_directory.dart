@@ -31,7 +31,7 @@ class Event {
 
 // Event Directory Screen
 class EventDirectory extends StatefulWidget {
-  const EventDirectory({Key? key}) : super(key: key);
+  const EventDirectory({super.key});
 
   @override
   State<EventDirectory> createState() => _EventDirectoryState();
@@ -348,10 +348,10 @@ class EventCard extends StatelessWidget {
   final VoidCallback onRegisterToggle;
 
   const EventCard({
-    Key? key,
+    super.key,
     required this.event,
     required this.onRegisterToggle,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

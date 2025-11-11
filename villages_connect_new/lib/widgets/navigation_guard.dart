@@ -7,11 +7,11 @@ class NavigationGuard extends StatelessWidget {
   final Widget? fallbackScreen;
 
   const NavigationGuard({
-    Key? key,
     required this.child,
     this.isAuthenticated = true, // Default to authenticated for now
     this.fallbackScreen,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -104,11 +104,11 @@ class AccessibleBottomNavigationBar extends StatelessWidget {
   final List<BottomNavigationBarItem> items;
 
   const AccessibleBottomNavigationBar({
-    Key? key,
     required this.currentIndex,
     required this.onTap,
     required this.items,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

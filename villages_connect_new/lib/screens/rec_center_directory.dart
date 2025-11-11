@@ -31,7 +31,7 @@ class RecCenter {
 
 // Recreation Center Directory Screen
 class RecCenterDirectory extends StatefulWidget {
-  const RecCenterDirectory({Key? key}) : super(key: key);
+  const RecCenterDirectory({super.key});
 
   @override
   State<RecCenterDirectory> createState() => _RecCenterDirectoryState();
@@ -368,9 +368,9 @@ class RecCenterCard extends StatelessWidget {
   final RecreationCenter center;
 
   const RecCenterCard({
-    Key? key,
     required this.center,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

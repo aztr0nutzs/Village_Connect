@@ -35,7 +35,7 @@ class NewsArticle {
 
 // News Feed Screen
 class NewsFeed extends StatefulWidget {
-  const NewsFeed({Key? key}) : super(key: key);
+  const NewsFeed({super.key});
 
   @override
   State<NewsFeed> createState() => _NewsFeedState();
@@ -380,10 +380,10 @@ class NewsArticleCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const NewsArticleCard({
-    Key? key,
+    super.key,
     required this.article,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -555,9 +555,9 @@ class ArticleDetailScreen extends StatelessWidget {
   final NewsArticle article;
 
   const ArticleDetailScreen({
-    Key? key,
+    super.key,
     required this.article,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

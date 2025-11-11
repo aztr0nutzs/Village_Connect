@@ -8,9 +8,9 @@ class NotificationScheduler extends StatefulWidget {
   final Widget child;
 
   const NotificationScheduler({
-    Key? key,
     required this.child,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<NotificationScheduler> createState() => _NotificationSchedulerState();
@@ -98,7 +98,7 @@ class _NotificationSchedulerState extends State<NotificationScheduler> {
 
 // Demo notification trigger buttons (for testing)
 class NotificationDemoButtons extends StatelessWidget {
-  const NotificationDemoButtons({Key? key}) : super(key: key);
+  const NotificationDemoButtons({super.key});
 
   @override
   Widget build(BuildContext context) {
