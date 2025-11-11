@@ -89,7 +89,7 @@ class _RecCenterDirectoryState extends State<RecCenterDirectory> {
 
   // Sample recreation centers data (fallback)
   final List<RecCenter> allCenters = [
-    RecCenter(
+    const RecCenter(
       id: '1',
       name: 'Main Community Center',
       description: 'The heart of The Villages recreation. Features multiple gyms, pools, and community spaces.',
@@ -105,7 +105,7 @@ class _RecCenterDirectoryState extends State<RecCenterDirectory> {
       isOpen: true,
       distance: 0.5,
     ),
-    RecCenter(
+    const RecCenter(
       id: '2',
       name: 'Fitness & Wellness Center',
       description: 'Dedicated to health and wellness with state-of-the-art equipment and fitness classes.',
@@ -121,7 +121,7 @@ class _RecCenterDirectoryState extends State<RecCenterDirectory> {
       isOpen: true,
       distance: 1.2,
     ),
-    RecCenter(
+    const RecCenter(
       id: '3',
       name: 'Aquatic Center',
       description: 'Indoor and outdoor pools with therapeutic and recreational swimming options.',
@@ -137,7 +137,7 @@ class _RecCenterDirectoryState extends State<RecCenterDirectory> {
       isOpen: false,
       distance: 2.1,
     ),
-    RecCenter(
+    const RecCenter(
       id: '4',
       name: 'Arts & Crafts Center',
       description: 'Creative space for painting, pottery, woodworking, and other artistic pursuits.',
@@ -152,7 +152,7 @@ class _RecCenterDirectoryState extends State<RecCenterDirectory> {
       isOpen: true,
       distance: 0.8,
     ),
-    RecCenter(
+    const RecCenter(
       id: '5',
       name: 'Sports Complex',
       description: 'Multi-sport facility with courts and fields for various athletic activities.',
@@ -404,7 +404,7 @@ class RecCenterCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${center.distance.toStringAsFixed(1)} miles away',
+                        center.address,
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 14,
@@ -582,7 +582,6 @@ class RecCenterCard extends StatelessWidget {
                         onPressed: () {
                           // Get directions - using maps URL scheme
                           // This will open maps app on mobile devices
-                          final mapsUrl = 'https://www.google.com/maps/dir/?api=1&destination=${center.latitude},${center.longitude}';
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('Opening maps to ${center.name}')),
                           );

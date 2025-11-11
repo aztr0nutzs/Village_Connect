@@ -1,5 +1,8 @@
+import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'storage_service.dart';
 
@@ -129,9 +132,13 @@ class AccessibilityService extends ChangeNotifier {
 
   static const String _preferencesKey = 'accessibility_preferences';
 
+  late final Future<void> _initialization;
+
   AccessibilityService(this._storageService) : _flutterTts = FlutterTts() {
-    _initializeService();
+    _initialization = _initializeService();
   }
+
+  Future<void> ensureInitialized() => _initialization;
 
   Future<void> _initializeService() async {
     try {
@@ -443,8 +450,9 @@ class AccessibilityService extends ChangeNotifier {
   bool get isInitialized => _isInitialized;
 
   // Cleanup
-  Future<void> dispose() async {
-    await _flutterTts.stop();
+  @override
+  void dispose() {
+    _flutterTts.stop();
     super.dispose();
   }
 }

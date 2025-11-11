@@ -16,7 +16,7 @@ class _EventCalendarState extends State<EventCalendar> {
   List<ApiEvent> _events = [];
   bool _isLoading = true;
   String? _errorMessage;
-  Set<String> _interestedEvents = {}; // Track interested events
+  final Set<String> _interestedEvents = {}; // Track interested events
 
   @override
   void initState() {
@@ -230,7 +230,6 @@ class _EventCalendarState extends State<EventCalendar> {
   }
 
   Widget _buildMonthlyView() {
-    final daysInMonth = _getDaysInMonth(_currentDate.year, _currentDate.month);
     final firstDayOfMonth = DateTime(_currentDate.year, _currentDate.month, 1);
     final startingWeekday = firstDayOfMonth.weekday; // 1 = Monday, 7 = Sunday
 
@@ -436,7 +435,7 @@ class _EventCalendarState extends State<EventCalendar> {
                           ),
                         ],
                       ),
-                      if (event.registrationUrl != null && event.registrationUrl!.isNotEmpty)
+                      if ((event.registrationUrl ?? '').isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 8),
                           child: SizedBox(
@@ -551,10 +550,6 @@ class _EventCalendarState extends State<EventCalendar> {
   }
 
   // Helper methods
-  int _getDaysInMonth(int year, int month) {
-    return DateTime(year, month + 1, 0).day;
-  }
-
   DateTime _getWeekStart(DateTime date) {
     final weekday = date.weekday;
     return date.subtract(Duration(days: weekday - 1));

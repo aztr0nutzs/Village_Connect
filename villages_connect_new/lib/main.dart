@@ -11,44 +11,97 @@ import 'services/storage_service.dart';
 import 'services/notification_service.dart';
 import 'services/accessibility_service.dart';
 import 'services/cache_service.dart';
+import 'services/api_service.dart';
+import 'screens/news_feed.dart';
+import 'screens/village_map.dart';
+import 'screens/event_calendar.dart';
+import 'screens/profile_screen.dart';
+import 'screens/event_directory.dart';
+import 'screens/settings_screen.dart';
+import 'screens/rec_center_directory.dart';
+import 'screens/emergency_contact_hub.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  try {
+    // Initialize Firebase
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
 
-  // Initialize services
-  final storageService = StorageService();
-  await storageService.initialize();
+    // Initialize services
+    final storageService = StorageService();
+    await storageService.initialize();
 
-  final authService = AuthService(storageService);
-  final notificationService = NotificationService(storageService);
-  final accessibilityService = AccessibilityService(storageService);
-  final cacheService = CacheService(storageService);
+    final authService = AuthService(storageService);
+    final notificationService = NotificationService(storageService);
+    final accessibilityService = AccessibilityService(storageService);
+    final cacheService = CacheService(storageService);
+    final apiService = ApiService(storageService);
 
-  // Wait for services to initialize
-  await Future.wait([
-    authService._initializeAuth(),
-    notificationService._initializeService(),
-    accessibilityService._initializeService(),
-    cacheService._initializeCache(),
-  ]);
+    // Wait for services to initialize
+    await Future.wait([
+      authService.ensureInitialized(),
+      notificationService.ensureInitialized(),
+      accessibilityService.ensureInitialized(),
+      cacheService.ensureInitialized(),
+      apiService.ensureInitialized(),
+    ]);
 
-  runApp(
-    MultiProvider(
-      providers: [
-        Provider<StorageService>.value(value: storageService),
-        ChangeNotifierProvider<AuthService>.value(value: authService),
-        ChangeNotifierProvider<NotificationService>.value(value: notificationService),
-        ChangeNotifierProvider<AccessibilityService>.value(value: accessibilityService),
-        ChangeNotifierProvider<CacheService>.value(value: cacheService),
-      ],
-      child: const VillagesConnectApp(),
-    ),
-  );
+    runApp(
+      MultiProvider(
+        providers: [
+          Provider<StorageService>.value(value: storageService),
+          ChangeNotifierProvider<AuthService>.value(value: authService),
+          ChangeNotifierProvider<NotificationService>.value(value: notificationService),
+          ChangeNotifierProvider<AccessibilityService>.value(value: accessibilityService),
+          ChangeNotifierProvider<CacheService>.value(value: cacheService),
+          ChangeNotifierProvider<ApiService>.value(value: apiService),
+        ],
+        child: const VillagesConnectApp(),
+      ),
+    );
+  } catch (e) {
+    // If initialization fails, show an error screen
+    runApp(InitializationErrorScreen(error: e));
+  }
+}
+
+class InitializationErrorScreen extends StatelessWidget {
+  final Object error;
+
+  const InitializationErrorScreen({Key? key, required this.error}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error, color: Colors.red, size: 50),
+              const SizedBox(height: 16),
+              const Text(
+                'Application Initialization Failed',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  error.toString(),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class VillagesConnectApp extends StatelessWidget {
@@ -65,12 +118,7 @@ class VillagesConnectApp extends StatelessWidget {
           // Theme configuration
           theme: _buildTheme(Brightness.light, accessibility),
           darkTheme: _buildTheme(Brightness.dark, accessibility),
-          themeMode: ThemeMode.system, // TODO: Make this configurable
-
-          // Accessibility tools for development
-          builder: (context, child) => AccessibilityTools(
-            child: child!,
-          ),
+          themeMode: ThemeMode.system,
 
           // Route configuration
           initialRoute: '/',
@@ -79,9 +127,16 @@ class VillagesConnectApp extends StatelessWidget {
             '/login': (context) => const LoginScreen(),
             '/register': (context) => const RegistrationScreen(),
             '/home': (context) => const HomeDashboard(),
+            '/news-feed': (context) => const NewsFeed(),
+            '/village-map': (context) => const VillageMap(),
+            '/event-calendar': (context) => const EventCalendar(),
+            '/profile': (context) => const ProfileScreen(),
+            '/event-directory': (context) => const EventDirectory(),
+            '/settings': (context) => const SettingsScreen(),
+            '/rec-center-directory': (context) => const RecCenterDirectory(),
+            '/emergency-contact-hub': (context) => const EmergencyContactHub(),
           },
 
-          // Error handling
           builder: (context, widget) {
             ErrorWidget.builder = (FlutterErrorDetails errorDetails) {
               return Material(
@@ -99,14 +154,14 @@ class VillagesConnectApp extends StatelessWidget {
                       const SizedBox(height: 16),
                       Text(
                         'Something went wrong!',
-                        style: Theme.of(context).textTheme.headline6,
+                        style: Theme.of(context).textTheme.titleLarge,
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
                       Text(
                         errorDetails.exception.toString(),
                         textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyText2,
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton(
@@ -121,7 +176,13 @@ class VillagesConnectApp extends StatelessWidget {
                 ),
               );
             };
-            return widget!;
+            if (widget == null) {
+              return const SizedBox.shrink();
+            }
+
+            return AccessibilityTools(
+              child: widget,
+            );
           },
         );
       },
@@ -141,9 +202,7 @@ class VillagesConnectApp extends StatelessWidget {
         seedColor: isDark ? Colors.blue.shade700 : Colors.blue.shade600,
         brightness: brightness,
       ).copyWith(
-        // Override with high visibility colors if enabled
         primary: highVisibilityColors['primary'] ?? (isDark ? Colors.blue.shade300 : Colors.blue.shade600),
-        background: highVisibilityColors['background'] ?? (isDark ? Colors.grey.shade900 : Colors.white),
         surface: highVisibilityColors['surface'] ?? (isDark ? Colors.grey.shade800 : Colors.grey.shade50),
       ),
 
@@ -213,12 +272,12 @@ class VillagesConnectApp extends StatelessWidget {
         fillColor: isDark ? Colors.grey.shade800 : Colors.grey.shade50,
       ),
 
-      cardTheme: CardTheme(
+      cardTheme: const CardThemeData(
         elevation: 2,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.all(Radius.circular(12)),
         ),
-        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
       ),
 
       // App bar theme
@@ -244,9 +303,9 @@ class VillagesConnectApp extends StatelessWidget {
       ),
 
       // Dialog theme
-      dialogTheme: DialogTheme(
+      dialogTheme: const DialogThemeData(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.all(Radius.circular(12)),
         ),
         elevation: 8,
       ),
@@ -258,6 +317,8 @@ class VillagesConnectApp extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
         ),
       ),
+
+      scaffoldBackgroundColor: highVisibilityColors['background'] ?? (isDark ? Colors.grey.shade900 : Colors.white),
 
       // Accessibility improvements
       visualDensity: VisualDensity.adaptivePlatformDensity,

@@ -124,10 +124,14 @@ class NotificationService extends ChangeNotifier {
   static const String _preferencesKey = 'notification_preferences';
   static const String _scheduledNotificationsKey = 'scheduled_notifications';
 
+  late final Future<void> _initialization;
+
   NotificationService(this._storageService)
       : _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin() {
-    _initializeService();
+    _initialization = _initializeService();
   }
+
+  Future<void> ensureInitialized() => _initialization;
 
   Future<void> _initializeService() async {
     try {
@@ -318,18 +322,17 @@ class NotificationService extends ChangeNotifier {
     if (!preferences.pushNotifications) return;
 
     const notificationId = 999999; // Use a high ID for push notifications
-    const notificationDetails = NotificationDetails(
+    final notificationDetails = NotificationDetails(
       android: AndroidNotificationDetails(
         'official_updates',
         'Official Updates',
         channelDescription: 'Official announcements and updates from The Villages',
         importance: Importance.high,
         priority: Priority.high,
-        sound: preferences.soundEnabled ? null : null,
+        playSound: preferences.soundEnabled,
         enableVibration: preferences.vibrationEnabled,
       ),
       iOS: DarwinNotificationDetails(
-        sound: preferences.soundEnabled ? null : null,
         presentAlert: true,
         presentBadge: true,
         presentSound: preferences.soundEnabled,

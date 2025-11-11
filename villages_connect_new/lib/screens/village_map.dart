@@ -117,7 +117,7 @@ class _VillageMapState extends State<VillageMap> {
   bool _isLoading = true;
   String? _errorMessage;
   Set<Marker> _markers = {};
-  Set<MapLocation> _locations = {};
+  final Set<MapLocation> _locations = {};
   String _selectedFilter = 'all';
 
   // The Villages center coordinates
@@ -453,39 +453,22 @@ class _VillageMapState extends State<VillageMap> {
   }
 
   Future<void> _getDirections(MapLocation location) async {
-    final url = 'https://www.google.com/maps/dir/?api=1&destination=${location.latitude},${location.longitude}';
-
-    try {
-      if (await canLaunch(url)) {
-        await launch(url);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not open maps to ${location.name}')),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error opening directions: $e')),
-      );
-    }
+    final uri = Uri.parse(
+      'https://www.google.com/maps/dir/?api=1&destination=${location.latitude},${location.longitude}',
+    );
+    await _launchExternalUri(
+      uri,
+      errorMessage: 'Could not open maps to ${location.name}',
+    );
   }
 
   Future<void> _callLocation(MapLocation location) async {
-    final url = 'tel:${location.phone}';
-
-    try {
-      if (await canLaunch(url)) {
-        await launch(url);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not call ${location.name}')),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error making call: $e')),
-      );
-    }
+    final uri = Uri(scheme: 'tel', path: location.phone);
+    await _launchExternalUri(
+      uri,
+      errorMessage: 'Could not call ${location.name}',
+      mode: LaunchMode.platformDefault,
+    );
   }
 
   void _filterLocations(String filter) {
@@ -635,5 +618,28 @@ class _VillageMapState extends State<VillageMap> {
       default:
         return filter;
     }
+  }
+
+  Future<void> _launchExternalUri(
+    Uri uri, {
+    String? errorMessage,
+    LaunchMode mode = LaunchMode.externalApplication,
+  }) async {
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: mode);
+      } else {
+        _showSnackBar(errorMessage ?? 'Unable to open link.');
+      }
+    } catch (e) {
+      _showSnackBar('${errorMessage ?? 'Unable to open link'}: $e');
+    }
+  }
+
+  void _showSnackBar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 }

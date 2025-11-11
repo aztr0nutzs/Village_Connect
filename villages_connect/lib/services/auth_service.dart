@@ -101,11 +101,15 @@ class AuthService extends ChangeNotifier {
   static const String _userKey = 'current_user';
   static const String _guestModeKey = 'guest_mode_enabled';
 
+  late final Future<void> _initialization;
+
   AuthService(this._storageService)
       : _firebaseAuth = FirebaseAuth.instance,
         _secureStorage = const FlutterSecureStorage() {
-    _initializeAuth();
+    _initialization = _initializeAuth();
   }
+
+  Future<void> ensureInitialized() => _initialization;
 
   Future<void> _initializeAuth() async {
     try {
@@ -113,7 +117,9 @@ class AuthService extends ChangeNotifier {
       notifyListeners();
 
       // Initialize Firebase if not already done
-      await Firebase.initializeApp();
+      if (Firebase.apps.isEmpty) {
+        await Firebase.initializeApp();
+      }
 
       // Listen to auth state changes
       _authStateSubscription = _firebaseAuth.authStateChanges().listen(
@@ -437,8 +443,9 @@ class AuthService extends ChangeNotifier {
   }
 
   // Cleanup
-  Future<void> dispose() async {
-    await _authStateSubscription?.cancel();
+  @override
+  void dispose() {
+    _authStateSubscription?.cancel();
     super.dispose();
   }
 

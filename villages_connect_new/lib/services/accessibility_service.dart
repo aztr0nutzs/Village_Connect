@@ -1,5 +1,5 @@
-import 'dart:ui';
-import 'package:flutter/foundation.dart';
+import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'storage_service.dart';
 
@@ -90,16 +90,13 @@ class AccessibilityPreferences {
 
   // Get font size multiplier based on text size
   double getFontSizeMultiplier() {
-    switch (textSize) {
-      case TextSize.small:
-        return 0.875;
-      case TextSize.medium:
-        return 1.0;
-      case TextSize.large:
-        return 1.25;
-      default:
-        return 1.0;
+    if (textSize == TextSize.small) {
+      return 0.875;
     }
+    if (textSize == TextSize.medium) {
+      return 1.0;
+    }
+    return 1.25;
   }
 
   // Get high visibility theme colors
@@ -126,12 +123,15 @@ class AccessibilityService extends ChangeNotifier {
 
   AccessibilityPreferences _preferences = AccessibilityPreferences();
   bool _isInitialized = false;
+  late final Future<void> _initialization;
 
   static const String _preferencesKey = 'accessibility_preferences';
 
   AccessibilityService(this._storageService) : _flutterTts = FlutterTts() {
-    _initializeService();
+    _initialization = _initializeService();
   }
+
+  Future<void> ensureInitialized() => _initialization;
 
   Future<void> _initializeService() async {
     try {
@@ -247,14 +247,6 @@ class AccessibilityService extends ChangeNotifier {
       await _flutterTts.pause();
     } catch (e) {
       debugPrint('Error pausing TTS: $e');
-    }
-  }
-
-  Future<void> resumeSpeaking() async {
-    try {
-      await _flutterTts.resume();
-    } catch (e) {
-      debugPrint('Error resuming TTS: $e');
     }
   }
 
@@ -382,17 +374,7 @@ class AccessibilityService extends ChangeNotifier {
     return (brightest + 0.05) / (darkest + 0.05);
   }
 
-  static double _calculateLuminance(Color color) {
-    final double r = color.red / 255.0;
-    final double g = color.green / 255.0;
-    final double b = color.blue / 255.0;
-
-    final double rLinear = r <= 0.03928 ? r / 12.92 : pow((r + 0.055) / 1.055, 2.4);
-    final double gLinear = g <= 0.03928 ? g / 12.92 : pow((g + 0.055) / 1.055, 2.4);
-    final double bLinear = b <= 0.03928 ? b / 12.92 : pow((b + 0.055) / 1.055, 2.4);
-
-    return 0.2126 * rLinear + 0.7152 * gLinear + 0.0722 * bLinear;
-  }
+  static double _calculateLuminance(Color color) => color.computeLuminance();
 
   // Accessibility Widget Helpers
   static Widget buildAccessibleText(
@@ -426,14 +408,13 @@ class AccessibilityService extends ChangeNotifier {
     ButtonStyle? style,
     FocusNode? focusNode,
   }) {
+    final minSizeStyle = ElevatedButton.styleFrom(
+      minimumSize: const Size(48, 48),
+    );
     return ElevatedButton(
       key: key,
       onPressed: onPressed,
-      style: style?.copyWith(
-        minimumSize: MaterialStateProperty.all(const Size(48, 48)),
-      ) ?? ElevatedButton.styleFrom(
-        minimumSize: const Size(48, 48),
-      ),
+      style: style?.merge(minSizeStyle) ?? minSizeStyle,
       focusNode: focusNode,
       child: child,
     );
@@ -443,8 +424,9 @@ class AccessibilityService extends ChangeNotifier {
   bool get isInitialized => _isInitialized;
 
   // Cleanup
-  Future<void> dispose() async {
-    await _flutterTts.stop();
+  @override
+  void dispose() {
+    unawaited(_flutterTts.stop());
     super.dispose();
   }
 }

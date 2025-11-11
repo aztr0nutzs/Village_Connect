@@ -97,6 +97,7 @@ class AuthService extends ChangeNotifier {
   AppUser? _currentUser;
   String? _errorMessage;
   StreamSubscription<User?>? _authStateSubscription;
+  late final Future<void> _initialization;
 
   static const String _userKey = 'current_user';
   static const String _guestModeKey = 'guest_mode_enabled';
@@ -104,8 +105,10 @@ class AuthService extends ChangeNotifier {
   AuthService(this._storageService)
       : _firebaseAuth = FirebaseAuth.instance,
         _secureStorage = const FlutterSecureStorage() {
-    _initializeAuth();
+    _initialization = _initializeAuth();
   }
+
+  Future<void> ensureInitialized() => _initialization;
 
   Future<void> _initializeAuth() async {
     try {
@@ -399,7 +402,14 @@ class AuthService extends ChangeNotifier {
 
   Future<bool> updateEmail(String email) async {
     try {
-      await _firebaseAuth.currentUser?.updateEmail(email);
+      final user = _firebaseAuth.currentUser;
+      if (user == null) {
+        _errorMessage = 'No authenticated user.';
+        notifyListeners();
+        return false;
+      }
+
+      await user.verifyBeforeUpdateEmail(email);
       await reloadUser();
       return true;
     } catch (e) {
@@ -437,8 +447,9 @@ class AuthService extends ChangeNotifier {
   }
 
   // Cleanup
-  Future<void> dispose() async {
-    await _authStateSubscription?.cancel();
+  @override
+  void dispose() {
+    _authStateSubscription?.cancel();
     super.dispose();
   }
 

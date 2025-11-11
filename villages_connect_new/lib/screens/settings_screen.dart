@@ -4,7 +4,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../services/storage_service.dart';
 import '../services/notification_service.dart';
 import '../services/accessibility_service.dart';
-import '../models/emergency_contact.dart';
 
 // Settings Screen
 class SettingsScreen extends StatefulWidget {
@@ -16,6 +15,13 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _isLoading = false;
+
+  void _showSnack(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,18 +103,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: const Text('Theme'),
               subtitle: const Text('Choose your preferred theme'),
               trailing: DropdownButton<String>(
-                value: 'light', // TODO: Implement theme switching
+                value: 'light',
                 items: const [
                   DropdownMenuItem(value: 'light', child: Text('Light')),
                   DropdownMenuItem(value: 'dark', child: Text('Dark')),
                   DropdownMenuItem(value: 'system', child: Text('System')),
                 ],
-                onChanged: (value) {
-                  // TODO: Implement theme switching
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Theme switching coming soon')),
-                  );
-                },
+                onChanged: (value) => _showSnack('Theme switching coming soon'),
               ),
             ),
 
@@ -123,9 +124,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   value: accessibility.isHighVisibilityMode,
                   onChanged: (value) async {
                     await accessibility.toggleHighVisibilityMode();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('High visibility mode ${value ? 'enabled' : 'disabled'}')),
-                    );
+                    _showSnack('High visibility mode ${value ? 'enabled' : 'disabled'}');
                   },
                 );
               },
@@ -305,9 +304,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     onChanged: (value) async {
                       if (value != null) {
                         await accessibility.setTextSize(value);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Text size changed to ${value.name}')),
-                        );
+                        _showSnack('Text size changed to ${value.name}');
                       }
                     },
                   ),
@@ -342,9 +339,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     trailing: ElevatedButton(
                       onPressed: () async {
                         await accessibility.testTTS();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Testing text-to-speech...')),
-                        );
+                        _showSnack('Testing text-to-speech...');
                       },
                       child: const Text('Test'),
                     ),
@@ -399,12 +394,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: const Text('Saved Locations'),
               subtitle: const Text('Manage your frequently visited locations'),
               trailing: ElevatedButton(
-                onPressed: () {
-                  // TODO: Navigate to location management screen
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Location management coming soon')),
-                  );
-                },
+                onPressed: () => _showSnack('Location management coming soon'),
                 child: const Text('Manage'),
               ),
             ),
@@ -434,15 +424,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   );
 
+                  if (!mounted) return;
                   if (confirmed == true) {
-                    // TODO: Implement location history clearing
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Location history cleared')),
-                    );
+                    _showSnack('Location history cleared');
                   }
                 },
-                child: const Text('Clear'),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                child: const Text('Clear'),
               ),
             ),
           ],
@@ -461,22 +449,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: const Text('Privacy Policy'),
               subtitle: const Text('Read our privacy policy'),
               trailing: const Icon(Icons.open_in_new),
-              onTap: () async {
-                const url = 'https://thevillages.com/privacy-policy'; // Placeholder URL
-                try {
-                  if (await canLaunch(url)) {
-                    await launch(url);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Could not open privacy policy')),
-                    );
-                  }
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Error opening privacy policy')),
-                  );
-                }
-              },
+              onTap: () => _openLink('https://thevillages.com/privacy-policy'),
             ),
 
             const Divider(),
@@ -485,22 +458,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: const Text('Terms of Service'),
               subtitle: const Text('Read our terms of service'),
               trailing: const Icon(Icons.open_in_new),
-              onTap: () async {
-                const url = 'https://thevillages.com/terms-of-service'; // Placeholder URL
-                try {
-                  if (await canLaunch(url)) {
-                    await launch(url);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Could not open terms of service')),
-                    );
-                  }
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Error opening terms of service')),
-                  );
-                }
-              },
+              onTap: () => _openLink('https://thevillages.com/terms-of-service'),
             ),
 
             const Divider(),
@@ -533,17 +491,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onPressed: () async {
                   setState(() => _isLoading = true);
                   try {
-                    // TODO: Implement settings export
                     await Future.delayed(const Duration(seconds: 1)); // Simulate export
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Settings exported successfully')),
-                    );
+                    _showSnack('Settings exported successfully');
                   } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error exporting settings: $e')),
-                    );
+                    _showSnack('Error exporting settings: $e');
                   } finally {
-                    setState(() => _isLoading = false);
+                    if (mounted) {
+                      setState(() => _isLoading = false);
+                    }
                   }
                 },
                 child: const Text('Export'),
@@ -557,10 +512,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               subtitle: const Text('Load settings from a file'),
               trailing: ElevatedButton(
                 onPressed: () async {
-                  // TODO: Implement settings import
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Settings import coming soon')),
-                  );
+                  _showSnack('Settings import coming soon');
                 },
                 child: const Text('Import'),
               ),
@@ -592,6 +544,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   );
 
+                  if (!mounted) return;
                   if (confirmed == true) {
                     setState(() => _isLoading = true);
                     try {
@@ -604,27 +557,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         'notification_preferences': null,
                         'accessibility_preferences': null,
                         'emergency_contacts': null,
-                        // TODO: Clear other preferences as needed
                       });
 
                       // Reset services to defaults
                       await notificationService.updatePreferences(NotificationPreferences());
                       await accessibilityService.updatePreferences(AccessibilityPreferences());
 
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Settings reset to defaults')),
-                      );
+                      _showSnack('Settings reset to defaults');
                     } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error resetting settings: $e')),
-                      );
+                      _showSnack('Error resetting settings: $e');
                     } finally {
-                      setState(() => _isLoading = false);
+                      if (mounted) {
+                        setState(() => _isLoading = false);
+                      }
                     }
                   }
                 },
-                child: const Text('Reset'),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                child: const Text('Reset'),
               ),
             ),
 
@@ -654,31 +604,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   );
 
+                  if (!mounted) return;
                   if (confirmed == true) {
                     setState(() => _isLoading = true);
                     try {
                       final storageService = context.read<StorageService>();
                       await storageService.clearAllData();
 
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('All data cleared successfully')),
-                      );
+                      _showSnack('All data cleared successfully');
                     } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error clearing data: $e')),
-                      );
+                      _showSnack('Error clearing data: $e');
                     } finally {
-                      setState(() => _isLoading = false);
+                      if (mounted) {
+                        setState(() => _isLoading = false);
+                      }
                     }
                   }
                 },
-                child: const Text('Clear All'),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                child: const Text('Clear All'),
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _openLink(String url) async {
+    final uri = Uri.parse(url);
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        _showToast('Could not open the requested link');
+      }
+    } catch (e) {
+      _showToast('Error opening link: $e');
+    }
+  }
+
+  void _showToast(String message) {
+    _showSnack(message);
   }
 }

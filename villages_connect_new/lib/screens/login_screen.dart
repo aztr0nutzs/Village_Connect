@@ -28,25 +28,30 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _isLoading = true);
 
-    // Simulate login process
-    await Future.delayed(const Duration(seconds: 2));
+    try {
+      // Simulate login process
+      await Future.delayed(const Duration(seconds: 2));
 
-    // For demo purposes, accept any email/password combination
-    if (_emailController.text.isNotEmpty && _passwordController.text.isNotEmpty) {
-      // Login successful - navigate to main app
-      if (mounted) {
-        Navigator.of(context).pushReplacementNamed('/dashboard');
-      }
-    } else {
-      if (mounted) {
+      if (!mounted) return;
+
+      if (_emailController.text.isNotEmpty && _passwordController.text.isNotEmpty) {
+        // Login successful - navigate to main app
+        await Navigator.of(context).pushReplacementNamed('/dashboard');
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please enter valid credentials')),
         );
       }
-    }
-
-    if (mounted) {
-      setState(() => _isLoading = false);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('An error occurred during login.')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -120,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       vertical: 20,
                     ),
                   ),
-                  style: const TextStyle(fontSize: 18),
+                  style: const TextStyle(fontSize: 18, color: Colors.black87),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your email';
@@ -162,7 +167,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       vertical: 20,
                     ),
                   ),
-                  style: const TextStyle(fontSize: 18),
+                  style: const TextStyle(fontSize: 18, color: Colors.black87),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your password';

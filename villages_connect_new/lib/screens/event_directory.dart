@@ -101,7 +101,7 @@ class _EventDirectoryState extends State<EventDirectory> {
 
   // Sample events data (fallback)
   final List<Event> allEvents = [
-    Event(
+    const Event(
       id: '1',
       title: 'Monthly Community Meeting',
       description: 'Join us for our monthly community meeting where we discuss upcoming events, share announcements, and connect with neighbors.',
@@ -112,7 +112,7 @@ class _EventDirectoryState extends State<EventDirectory> {
       capacity: 100,
       registered: 45,
     ),
-    Event(
+    const Event(
       id: '2',
       title: 'Senior Fitness Class',
       description: 'Gentle exercise class designed for seniors. Includes chair exercises, light stretching, and balance activities.',
@@ -124,7 +124,7 @@ class _EventDirectoryState extends State<EventDirectory> {
       registered: 18,
       isRegistered: true,
     ),
-    Event(
+    const Event(
       id: '3',
       title: 'Computer Basics Workshop',
       description: 'Learn the basics of using computers and smartphones. Topics include email, internet browsing, and video calling.',
@@ -135,7 +135,7 @@ class _EventDirectoryState extends State<EventDirectory> {
       capacity: 15,
       registered: 12,
     ),
-    Event(
+    const Event(
       id: '4',
       title: 'Movie Night: Classic Films',
       description: 'Enjoy a screening of classic movies from the golden age of cinema. Popcorn and refreshments provided.',
@@ -146,7 +146,7 @@ class _EventDirectoryState extends State<EventDirectory> {
       capacity: 80,
       registered: 67,
     ),
-    Event(
+    const Event(
       id: '5',
       title: 'Volunteer Opportunity: Food Bank',
       description: 'Help sort and pack food donations for local families in need. Training provided, all skill levels welcome.',

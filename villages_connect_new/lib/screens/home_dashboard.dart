@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../services/api_service.dart';
+import '../services/auth_service.dart';
 
 // Dashboard item model
 class DashboardItem {
@@ -8,14 +10,14 @@ class DashboardItem {
   final String subtitle;
   final IconData icon;
   final Color color;
-  final VoidCallback? onTap;
+  final String route;
 
   const DashboardItem({
     required this.title,
     required this.subtitle,
     required this.icon,
     required this.color,
-    this.onTap,
+    required this.route,
   });
 }
 
@@ -36,7 +38,7 @@ class DashboardCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: InkWell(
-        onTap: item.onTap,
+        onTap: () => Navigator.of(context).pushNamed(item.route),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -106,6 +108,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
   }
 
   Future<void> _loadLatestNews() async {
+    if (!mounted) return;
     setState(() {
       isLoadingNews = true;
       newsError = null;
@@ -115,6 +118,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
       final apiService = context.read<ApiService>();
       final response = await apiService.fetchNews(limit: 3);
 
+      if (!mounted) return;
       if (response.success && response.data != null) {
         setState(() {
           latestNews = response.data!.take(3).toList();
@@ -125,10 +129,12 @@ class _HomeDashboardState extends State<HomeDashboard> {
         });
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         newsError = 'Failed to load news: ${e.toString()}';
       });
     } finally {
+      if (!mounted) return;
       setState(() {
         isLoadingNews = false;
       });
@@ -136,6 +142,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
   }
 
   Future<void> _loadUpcomingEvents() async {
+    if (!mounted) return;
     setState(() {
       isLoadingEvents = true;
       eventsError = null;
@@ -145,6 +152,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
       final apiService = context.read<ApiService>();
       final response = await apiService.fetchEvents(limit: 3);
 
+      if (!mounted) return;
       if (response.success && response.data != null) {
         setState(() {
           upcomingEvents = response.data!.take(3).toList();
@@ -155,104 +163,67 @@ class _HomeDashboardState extends State<HomeDashboard> {
         });
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         eventsError = 'Failed to load events: ${e.toString()}';
       });
     } finally {
+      if (!mounted) return;
       setState(() {
         isLoadingEvents = false;
       });
     }
   }
 
-  // Sample dashboard data (keeping for compatibility)
   final List<DashboardItem> dashboardItems = [
-    DashboardItem(
+    const DashboardItem(
       title: 'Events',
       subtitle: 'Community events & activities',
       icon: Icons.event,
       color: Colors.blue,
-      onTap: () {
-        // Navigate to events screen
-        print('Navigate to Events');
-      },
+      route: '/event-directory',
     ),
-    DashboardItem(
+    const DashboardItem(
       title: 'Rec Centers',
       subtitle: 'Fitness & recreation facilities',
       icon: Icons.fitness_center,
       color: Colors.green,
-      onTap: () {
-        // Navigate to rec centers screen
-        print('Navigate to Rec Centers');
-      },
+      route: '/rec-center-directory',
     ),
-    DashboardItem(
+    const DashboardItem(
       title: 'News',
       subtitle: 'Community announcements',
       icon: Icons.article,
       color: Colors.orange,
-      onTap: () {
-        // Navigate to news screen
-        print('Navigate to News');
-      },
+      route: '/news-feed',
     ),
-    DashboardItem(
+    const DashboardItem(
       title: 'Directory',
       subtitle: 'Resident contacts',
       icon: Icons.contacts,
       color: Colors.purple,
-      onTap: () {
-        // Navigate to directory screen
-        print('Navigate to Directory');
-      },
+      route: '/emergency-contact-hub', // Placeholder
     ),
-    DashboardItem(
+    const DashboardItem(
       title: 'Messages',
       subtitle: 'Inbox & communications',
       icon: Icons.message,
       color: Colors.teal,
-      onTap: () {
-        // Navigate to messages screen
-        print('Navigate to Messages');
-      },
+      route: '/home', // Placeholder
     ),
-    DashboardItem(
+    const DashboardItem(
       title: 'Emergency',
       subtitle: 'Important contacts',
       icon: Icons.emergency,
       color: Colors.red,
-      onTap: () {
-        // Navigate to emergency screen
-        print('Navigate to Emergency');
-      },
+      route: '/emergency-contact-hub',
     ),
-  ];
-
-  // Sample announcements
-  final List<Map<String, dynamic>> announcements = [
-    {
-      'title': 'Community Meeting',
-      'message': 'Monthly community meeting this Thursday at 2 PM in the clubhouse.',
-      'date': 'Jan 25, 2024',
-      'priority': 'normal',
-    },
-    {
-      'title': 'Weather Alert',
-      'message': 'Heavy rain expected tomorrow. Please take precautions.',
-      'date': 'Jan 14, 2024',
-      'priority': 'high',
-    },
-    {
-      'title': 'New Fitness Classes',
-      'message': 'Senior yoga and water aerobics classes starting next week.',
-      'date': 'Jan 12, 2024',
-      'priority': 'normal',
-    },
   ];
 
   @override
   Widget build(BuildContext context) {
+    final authService = context.watch<AuthService>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -272,10 +243,8 @@ class _HomeDashboardState extends State<HomeDashboard> {
           ),
           IconButton(
             icon: const Icon(Icons.person),
-            onPressed: () {
-              // Profile/settings action
-              print('Open Profile');
-            },
+            onPressed: () => Navigator.of(context).pushNamed('/profile'),
+            tooltip: 'Profile',
           ),
         ],
       ),
@@ -298,7 +267,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Welcome back, John!',
+                        'Welcome back, ${authService.currentUser?.displayName ?? 'Guest'}!',
                         style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -350,6 +319,52 @@ class _HomeDashboardState extends State<HomeDashboard> {
             const SizedBox(height: 32),
 
             // Live Content Sections
+            if (isLoadingNews || isLoadingEvents)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 32),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+
+            if (newsError != null || eventsError != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  color: Colors.red[50],
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Unable to load live content',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      if (newsError != null) Text('News: $newsError'),
+                      if (eventsError != null) Text('Events: $eventsError'),
+                      const SizedBox(height: 8),
+                      ElevatedButton(
+                        onPressed: _loadDashboardData,
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+            if (!isLoadingNews && !isLoadingEvents && latestNews.isEmpty && upcomingEvents.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(32.0),
+                  child: Text(
+                    'No recent news or upcoming events.',
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+
             if (latestNews.isNotEmpty || upcomingEvents.isNotEmpty)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -398,67 +413,6 @@ class _HomeDashboardState extends State<HomeDashboard> {
                       ],
                     ),
                 ],
-              ),
-
-            // Fallback Announcements Section
-            if (latestNews.isEmpty && upcomingEvents.isEmpty)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 32),
-                  Text(
-                    'Announcements',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // Announcements List
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: announcements.length,
-                    itemBuilder: (context, index) {
-                      final announcement = announcements[index];
-                      return _buildAnnouncementCard(announcement);
-                    },
-                  ),
-                ],
-              ),
-
-            // Loading and Error States
-            if (isLoadingNews || isLoadingEvents)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 32),
-                child: Center(child: CircularProgressIndicator()),
-              ),
-
-            if (newsError != null || eventsError != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  color: Colors.red[50],
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Unable to load live content',
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      if (newsError != null) Text('News: $newsError'),
-                      if (eventsError != null) Text('Events: $eventsError'),
-                      const SizedBox(height: 8),
-                      ElevatedButton(
-                        onPressed: _loadDashboardData,
-                        child: const Text('Retry'),
-                      ),
-                    ],
-                  ),
-                ),
               ),
           ],
         ),
@@ -521,7 +475,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
             ),
             const SizedBox(height: 8),
             Text(
-              'By ${news.author} • ${news.publishedAt.toLocal().toString().split(' ')[0]}',
+              'By ${news.author} • ${DateFormat.yMMMd().format(news.publishedAt.toLocal())}',
               style: TextStyle(
                 fontSize: 12,
                 color: Colors.grey[600],
@@ -591,7 +545,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
                 const Icon(Icons.calendar_today, size: 14, color: Colors.grey),
                 const SizedBox(width: 4),
                 Text(
-                  '${event.startDate.month}/${event.startDate.day}/${event.startDate.year}',
+                  DateFormat.yMMMd().format(event.startDate),
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey[600],
@@ -619,95 +573,13 @@ class _HomeDashboardState extends State<HomeDashboard> {
     );
   }
 
-  // Build announcement card widget
-  Widget _buildAnnouncementCard(Map<String, dynamic> announcement) {
-    final isHighPriority = announcement['priority'] == 'high';
-
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.only(bottom: 12),
-      color: isHighPriority ? Colors.orange[50] : null,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-        side: BorderSide(
-          color: isHighPriority ? Colors.orange : Colors.grey[300]!,
-          width: isHighPriority ? 2 : 1,
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    announcement['title'],
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                if (isHighPriority)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.orange,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Text(
-                      'HIGH',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              announcement['message'],
-              style: const TextStyle(
-                fontSize: 16,
-                height: 1.4,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              announcement['date'],
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   // Get current time formatted for display
   String _getCurrentTime() {
-    final now = DateTime.now();
-    final hour = now.hour > 12 ? now.hour - 12 : (now.hour == 0 ? 12 : now.hour);
-    final minute = now.minute.toString().padLeft(2, '0');
-    final amPm = now.hour >= 12 ? 'PM' : 'AM';
-    return '$hour:$minute $amPm';
+    return DateFormat.jm().format(DateTime.now());
   }
 
   // Get current date formatted for display
   String _getCurrentDate() {
-    final now = DateTime.now();
-    final weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    final months = ['January', 'February', 'March', 'April', 'May', 'June',
-                   'July', 'August', 'September', 'October', 'November', 'December'];
-
-    return '${weekdays[now.weekday - 1]}, ${months[now.month - 1]} ${now.day}, ${now.year}';
+    return DateFormat.yMMMMEEEEd().format(DateTime.now());
   }
 }

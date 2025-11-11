@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../services/notification_service.dart';
 
 // Notification scheduler widget
@@ -22,7 +23,11 @@ class _NotificationSchedulerState extends State<NotificationScheduler> {
   @override
   void initState() {
     super.initState();
-    _scheduleRecurringNotifications();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _scheduleRecurringNotifications();
+      }
+    });
   }
 
   @override
@@ -33,13 +38,13 @@ class _NotificationSchedulerState extends State<NotificationScheduler> {
   }
 
   // Schedule recurring notifications
-  void _scheduleRecurringNotifications() {
-    final notificationService = NotificationService();
+  Future<void> _scheduleRecurringNotifications() async {
+    final notificationService = context.read<NotificationService>();
+    if (!notificationService.isInitialized) {
+      await notificationService.ensureInitialized();
+    }
 
-    // Schedule daily digest (if enabled)
     _scheduleDailyDigest(notificationService);
-
-    // Schedule event reminders (demo)
     _scheduleEventReminders(notificationService);
   }
 
@@ -97,8 +102,6 @@ class NotificationDemoButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final notificationService = NotificationService();
-
     return Card(
       margin: const EdgeInsets.all(16),
       child: Padding(
@@ -113,7 +116,9 @@ class NotificationDemoButtons extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            Wrap(
+            Consumer<NotificationService>(
+              builder: (context, notificationService, _) {
+                return Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
@@ -157,6 +162,8 @@ class NotificationDemoButtons extends StatelessWidget {
                   label: const Text('Schedule Reminder'),
                 ),
               ],
+            );
+              },
             ),
           ],
         ),

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/auth_service.dart';
 import '../services/notification_service.dart';
-import '../services/storage_service.dart';
 
 // Profile Screen
 class ProfileScreen extends StatefulWidget {
@@ -29,8 +27,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _loadUserData() {
-    final storageService = context.read<StorageService>();
-
     // Load from storage service if available, otherwise use defaults
     _firstNameController.text = 'John';
     _lastNameController.text = 'Doe';
@@ -246,17 +242,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ],
 
                       // Member Since
-                      ListTile(
-                        leading: const Icon(Icons.calendar_today),
-                        title: const Text('Member Since'),
-                        subtitle: const Text('November 2024'),
+                      const ListTile(
+                        leading: Icon(Icons.calendar_today),
+                        title: Text('Member Since'),
+                        subtitle: Text('November 2024'),
                       ),
 
                       // Account Status
-                      ListTile(
-                        leading: const Icon(Icons.verified_user, color: Colors.green),
-                        title: const Text('Account Status'),
-                        subtitle: const Text('Active Member'),
+                      const ListTile(
+                        leading: Icon(Icons.verified_user, color: Colors.green),
+                        title: Text('Account Status'),
+                        subtitle: Text('Active Member'),
                       ),
                     ],
                   ),

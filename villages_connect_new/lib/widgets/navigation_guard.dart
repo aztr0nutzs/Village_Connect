@@ -143,14 +143,14 @@ class AppRouteObserver extends RouteObserver<PageRoute<dynamic>> {
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPush(route, previousRoute);
     // Track navigation for analytics
-    print('Navigated to: ${route.settings.name ?? 'Unknown'}');
+    debugPrint('Navigated to: ${route.settings.name ?? 'Unknown'}');
   }
 
   @override
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPop(route, previousRoute);
     // Track back navigation
-    print('Navigated back from: ${route.settings.name ?? 'Unknown'}');
+    debugPrint('Navigated back from: ${route.settings.name ?? 'Unknown'}');
   }
 }
 

@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -15,6 +14,9 @@ class NotificationPreferences {
   final String digestTime; // Time for daily digest (HH:mm format)
   final bool soundEnabled;
   final bool vibrationEnabled;
+  final bool emergencyAlerts;
+  final bool communityAnnouncements;
+  final bool messageNotifications;
 
   NotificationPreferences({
     this.eventReminders = true,
@@ -24,6 +26,9 @@ class NotificationPreferences {
     this.digestTime = '08:00',
     this.soundEnabled = true,
     this.vibrationEnabled = true,
+    this.emergencyAlerts = true,
+    this.communityAnnouncements = true,
+    this.messageNotifications = true,
   });
 
   factory NotificationPreferences.fromJson(Map<String, dynamic> json) {
@@ -35,6 +40,9 @@ class NotificationPreferences {
       digestTime: json['digestTime'] ?? '08:00',
       soundEnabled: json['soundEnabled'] ?? true,
       vibrationEnabled: json['vibrationEnabled'] ?? true,
+      emergencyAlerts: json['emergencyAlerts'] ?? true,
+      communityAnnouncements: json['communityAnnouncements'] ?? true,
+      messageNotifications: json['messageNotifications'] ?? true,
     );
   }
 
@@ -47,6 +55,9 @@ class NotificationPreferences {
       'digestTime': digestTime,
       'soundEnabled': soundEnabled,
       'vibrationEnabled': vibrationEnabled,
+      'emergencyAlerts': emergencyAlerts,
+      'communityAnnouncements': communityAnnouncements,
+      'messageNotifications': messageNotifications,
     };
   }
 
@@ -58,6 +69,9 @@ class NotificationPreferences {
     String? digestTime,
     bool? soundEnabled,
     bool? vibrationEnabled,
+    bool? emergencyAlerts,
+    bool? communityAnnouncements,
+    bool? messageNotifications,
   }) {
     return NotificationPreferences(
       eventReminders: eventReminders ?? this.eventReminders,
@@ -67,6 +81,9 @@ class NotificationPreferences {
       digestTime: digestTime ?? this.digestTime,
       soundEnabled: soundEnabled ?? this.soundEnabled,
       vibrationEnabled: vibrationEnabled ?? this.vibrationEnabled,
+      emergencyAlerts: emergencyAlerts ?? this.emergencyAlerts,
+      communityAnnouncements: communityAnnouncements ?? this.communityAnnouncements,
+      messageNotifications: messageNotifications ?? this.messageNotifications,
     );
   }
 }
@@ -120,21 +137,21 @@ class NotificationService extends ChangeNotifier {
   NotificationPreferences _preferences = NotificationPreferences();
   List<ScheduledNotification> _scheduledNotifications = [];
   bool _isInitialized = false;
+  late final Future<void> _initialization;
 
   static const String _preferencesKey = 'notification_preferences';
   static const String _scheduledNotificationsKey = 'scheduled_notifications';
 
   NotificationService(this._storageService)
       : _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin() {
-    _initializeService();
+    _initialization = _initializeService();
   }
+
+  Future<void> ensureInitialized() => _initialization;
 
   Future<void> _initializeService() async {
     try {
-      // Initialize timezone
-      tz.initializeTimeZones();
-      final String timeZoneName = await FlutterTimezone.getLocalTimezone();
-      tz.setLocalLocation(tz.getLocation(timeZoneName));
+      await _initTimeZone();
 
       // Initialize notifications
       const AndroidInitializationSettings initializationSettingsAndroid =
@@ -158,6 +175,8 @@ class NotificationService extends ChangeNotifier {
         onDidReceiveBackgroundNotificationResponse: _onDidReceiveBackgroundNotificationResponse,
       );
 
+      await requestPermissions();
+
       // Load preferences and scheduled notifications
       await _loadPreferences();
       await _loadScheduledNotifications();
@@ -169,6 +188,20 @@ class NotificationService extends ChangeNotifier {
     } catch (e) {
       debugPrint('Error initializing NotificationService: $e');
     }
+  }
+
+  Future<void> _initTimeZone() async {
+    tz.initializeTimeZones();
+    final dynamic tzInfo = await FlutterTimezone.getLocalTimezone();
+    final String timeZoneName;
+    if (tzInfo is String) {
+      timeZoneName = tzInfo;
+    } else if (tzInfo is Map && tzInfo['name'] is String) {
+      timeZoneName = tzInfo['name'] as String;
+    } else {
+      timeZoneName = tz.local.name;
+    }
+    tz.setLocalLocation(tz.getLocation(timeZoneName));
   }
 
   // Preferences Management
@@ -230,35 +263,46 @@ class NotificationService extends ChangeNotifier {
 
   // Event Reminder Scheduling
   Future<void> scheduleEventReminder({
-    required String eventId,
     required String eventTitle,
-    required DateTime eventDateTime,
+    required DateTime eventDate,
+    String? eventId,
+    int? minutesBefore,
+    String? payload,
   }) async {
+    await ensureInitialized();
     if (!preferences.eventReminders) return;
 
-    final reminderTime = eventDateTime.subtract(
-      Duration(hours: preferences.reminderHoursBefore),
-    );
+    final int reminderMinutes =
+        (minutesBefore ?? (preferences.reminderHoursBefore * 60)).clamp(1, 10080);
+    final reminderTime = eventDate.subtract(Duration(minutes: reminderMinutes));
 
     // Don't schedule if reminder time is in the past
     if (reminderTime.isBefore(DateTime.now())) return;
 
-    final notificationId = _generateNotificationId('event_$eventId');
+    final notificationId = _generateNotificationId('event_${eventId ?? eventTitle}');
     final notification = ScheduledNotification(
       id: notificationId,
       title: 'Event Reminder',
-      body: '$eventTitle starts in ${preferences.reminderHoursBefore} hours',
+      body: '$eventTitle starts soon',
       scheduledTime: reminderTime,
       type: 'event_reminder',
-      payload: eventId,
+      payload: payload ?? eventId,
     );
 
-    await _scheduleNotification(notification);
+    await _scheduleNotification(
+      notification,
+      details: _buildNotificationDetails(
+        channelId: 'event_reminders',
+        channelName: 'Event Reminders',
+        channelDescription: 'Reminders for upcoming events',
+      ),
+    );
     _scheduledNotifications.add(notification);
     await _saveScheduledNotifications();
   }
 
   Future<void> cancelEventReminder(String eventId) async {
+    await ensureInitialized();
     final notificationId = _generateNotificationId('event_$eventId');
     await _flutterLocalNotificationsPlugin.cancel(notificationId);
 
@@ -268,6 +312,7 @@ class NotificationService extends ChangeNotifier {
 
   // Daily Digest Scheduling
   Future<void> scheduleDailyDigest() async {
+    await ensureInitialized();
     if (!preferences.dailyDigest) {
       await cancelDailyDigest();
       return;
@@ -293,7 +338,14 @@ class NotificationService extends ChangeNotifier {
       type: 'daily_digest',
     );
 
-    await _scheduleNotification(notification);
+    await _scheduleNotification(
+      notification,
+      details: _buildNotificationDetails(
+        channelId: 'daily_digest_channel',
+        channelName: 'Daily Digest',
+        channelDescription: 'Daily summary of community updates',
+      ),
+    );
 
     // Remove old daily digest notifications
     _scheduledNotifications.removeWhere((n) => n.type == 'daily_digest');
@@ -302,6 +354,7 @@ class NotificationService extends ChangeNotifier {
   }
 
   Future<void> cancelDailyDigest() async {
+    await ensureInitialized();
     final notificationId = _generateNotificationId('daily_digest');
     await _flutterLocalNotificationsPlugin.cancel(notificationId);
 
@@ -315,54 +368,130 @@ class NotificationService extends ChangeNotifier {
     required String body,
     String? payload,
   }) async {
+    await ensureInitialized();
     if (!preferences.pushNotifications) return;
 
-    const notificationId = 999999; // Use a high ID for push notifications
-    const notificationDetails = NotificationDetails(
-      android: AndroidNotificationDetails(
-        'official_updates',
-        'Official Updates',
-        channelDescription: 'Official announcements and updates from The Villages',
-        importance: Importance.high,
-        priority: Priority.high,
-        sound: preferences.soundEnabled ? null : null,
-        enableVibration: preferences.vibrationEnabled,
-      ),
-      iOS: DarwinNotificationDetails(
-        sound: preferences.soundEnabled ? null : null,
-        presentAlert: true,
-        presentBadge: true,
-        presentSound: preferences.soundEnabled,
-      ),
+    final notificationDetails = _buildNotificationDetails(
+      channelId: 'official_updates',
+      channelName: 'Official Updates',
+      channelDescription: 'Official announcements and updates from The Villages',
     );
 
-    await _flutterLocalNotificationsPlugin.show(
-      notificationId,
-      title,
-      body,
-      notificationDetails,
+    await _showInstantNotification(
+      id: 999999,
+      title: title,
+      body: body,
+      details: notificationDetails,
+      payload: payload,
+    );
+  }
+
+  Future<void> sendTestNotification() async {
+    final details = _buildNotificationDetails(
+      channelId: 'test_notifications',
+      channelName: 'Test Notifications',
+      channelDescription: 'Testing notification functionality',
+    );
+
+    await _showInstantNotification(
+      id: _generateNotificationId('test_notification'),
+      title: 'Villages Connect',
+      body: 'Notifications are working correctly.',
+      details: details,
+    );
+  }
+
+  Future<void> sendEmergencyAlert({
+    required String title,
+    required String message,
+    String? payload,
+  }) async {
+    await ensureInitialized();
+    if (!preferences.emergencyAlerts) return;
+
+    final details = _buildNotificationDetails(
+      channelId: 'emergency_alerts',
+      channelName: 'Emergency Alerts',
+      channelDescription: 'Critical emergency notifications',
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+
+    await _showInstantNotification(
+      id: _generateNotificationId('emergency_alert'),
+      title: title,
+      body: message,
+      details: details,
+      payload: payload,
+    );
+  }
+
+  Future<void> sendCommunityAnnouncement({
+    required String title,
+    required String message,
+    String? payload,
+  }) async {
+    await ensureInitialized();
+    if (!preferences.communityAnnouncements) return;
+
+    final details = _buildNotificationDetails(
+      channelId: 'community_announcements',
+      channelName: 'Community Announcements',
+      channelDescription: 'Community news and updates',
+    );
+
+    await _showInstantNotification(
+      id: _generateNotificationId('community_announcement'),
+      title: title,
+      body: message,
+      details: details,
       payload: payload,
     );
   }
 
   // Notification Scheduling Helper
-  Future<void> _scheduleNotification(ScheduledNotification notification) async {
-    final scheduledDate = tz.TZDateTime.from(notification.scheduledTime, tz.local);
-
-    const notificationDetails = NotificationDetails(
-      android: AndroidNotificationDetails(
-        'scheduled_notifications',
-        'Scheduled Notifications',
-        channelDescription: 'Scheduled reminders and notifications',
-        importance: Importance.high,
-        priority: Priority.high,
-      ),
-      iOS: DarwinNotificationDetails(
-        presentAlert: true,
-        presentBadge: true,
-        presentSound: true,
-      ),
+  NotificationDetails _buildNotificationDetails({
+    required String channelId,
+    required String channelName,
+    String? channelDescription,
+    Importance importance = Importance.high,
+    Priority priority = Priority.high,
+  }) {
+    final androidDetails = AndroidNotificationDetails(
+      channelId,
+      channelName,
+      channelDescription: channelDescription,
+      importance: importance,
+      priority: priority,
+      playSound: _preferences.soundEnabled,
+      enableVibration: _preferences.vibrationEnabled,
+      icon: '@mipmap/ic_launcher',
     );
+
+    final iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: _preferences.soundEnabled,
+    );
+
+    return NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
+  }
+
+  Future<void> _scheduleNotification(
+    ScheduledNotification notification, {
+    NotificationDetails? details,
+  }) async {
+    await ensureInitialized();
+    final scheduledDate = tz.TZDateTime.from(notification.scheduledTime, tz.local);
+    final notificationDetails = details ??
+        _buildNotificationDetails(
+          channelId: 'scheduled_notifications',
+          channelName: 'Scheduled Notifications',
+          channelDescription: 'Scheduled reminders and notifications',
+        );
 
     await _flutterLocalNotificationsPlugin.zonedSchedule(
       notification.id,
@@ -376,8 +505,26 @@ class NotificationService extends ChangeNotifier {
     );
   }
 
+  Future<void> _showInstantNotification({
+    required int id,
+    required String title,
+    required String body,
+    required NotificationDetails details,
+    String? payload,
+  }) async {
+    await ensureInitialized();
+    await _flutterLocalNotificationsPlugin.show(
+      id,
+      title,
+      body,
+      details,
+      payload: payload,
+    );
+  }
+
   // Update all scheduled notifications based on current preferences
   Future<void> _updateScheduledNotifications() async {
+    await ensureInitialized();
     // Cancel all existing notifications
     await _flutterLocalNotificationsPlugin.cancelAll();
 
@@ -401,7 +548,7 @@ class NotificationService extends ChangeNotifier {
     if (payload != null) {
       debugPrint('Notification tapped with payload: $payload');
       // Handle navigation based on payload (event ID, etc.)
-      // This would typically trigger navigation to relevant screens
+      // This would typically trigger navigation to a relevant screen
     }
   }
 
@@ -411,9 +558,9 @@ class NotificationService extends ChangeNotifier {
   }
 
   // Utility Methods
-  int _generateNotificationId(String prefix) {
-    // Generate a unique ID based on prefix and current time
-    return prefix.hashCode + DateTime.now().millisecondsSinceEpoch.hashCode;
+  int _generateNotificationId(String? prefix) {
+    final baseHash = prefix?.hashCode ?? 0;
+    return baseHash ^ DateTime.now().millisecondsSinceEpoch;
   }
 
   // Get scheduled notifications for display
@@ -430,12 +577,23 @@ class NotificationService extends ChangeNotifier {
         _flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>();
 
-    final bool? granted = await androidImplementation?.requestPermission();
-    return granted ?? false;
+    final IOSFlutterLocalNotificationsPlugin? iosImplementation =
+        _flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin>();
+
+    final bool? androidGranted = await androidImplementation?.requestNotificationsPermission();
+    final bool? iosGranted = await iosImplementation?.requestPermissions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    return (androidGranted ?? true) && (iosGranted ?? true);
   }
 
   // Clear all notifications
   Future<void> clearAllNotifications() async {
+    await ensureInitialized();
     await _flutterLocalNotificationsPlugin.cancelAll();
     _scheduledNotifications.clear();
     await _saveScheduledNotifications();
@@ -443,6 +601,7 @@ class NotificationService extends ChangeNotifier {
 
   // Get pending notifications count
   Future<int> getPendingNotificationsCount() async {
+    await ensureInitialized();
     final pending = await _flutterLocalNotificationsPlugin.pendingNotificationRequests();
     return pending.length;
   }

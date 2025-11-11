@@ -192,20 +192,12 @@ class _EmergencyContactHubState extends State<EmergencyContactHub> {
   }
 
   Future<void> _callContact(EmergencyContact contact) async {
-    final url = 'tel:${contact.phone}';
-    try {
-      if (await canLaunch(url)) {
-        await launch(url);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not call ${contact.name}')),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error calling ${contact.name}: $e')),
-      );
-    }
+    final uri = Uri(scheme: 'tel', path: contact.phone);
+    await _launchExternalUri(
+      uri,
+      errorMessage: 'Could not call ${contact.name}',
+      mode: LaunchMode.platformDefault,
+    );
   }
 
   Future<void> _showLocation(EmergencyContact contact) async {
@@ -216,20 +208,13 @@ class _EmergencyContactHubState extends State<EmergencyContactHub> {
       return;
     }
 
-    final url = 'https://www.google.com/maps/search/?api=1&query=${contact.latitude},${contact.longitude}';
-    try {
-      if (await canLaunch(url)) {
-        await launch(url);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not open maps for ${contact.name}')),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error opening maps: $e')),
-      );
-    }
+    final uri = Uri.parse(
+      'https://www.google.com/maps/search/?api=1&query=${contact.latitude},${contact.longitude}',
+    );
+    await _launchExternalUri(
+      uri,
+      errorMessage: 'Could not open maps for ${contact.name}',
+    );
   }
 
   void _togglePin(EmergencyContact contact) {
@@ -248,6 +233,29 @@ class _EmergencyContactHubState extends State<EmergencyContactHub> {
     final action = contact.isPinned ? 'unpinned from' : 'pinned to';
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('${contact.name} $action quick access')),
+    );
+  }
+
+  Future<void> _launchExternalUri(
+    Uri uri, {
+    String? errorMessage,
+    LaunchMode mode = LaunchMode.externalApplication,
+  }) async {
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: mode);
+      } else {
+        _showSnackBar(errorMessage ?? 'Unable to open link.');
+      }
+    } catch (e) {
+      _showSnackBar('${errorMessage ?? 'Unable to open link'}: $e');
+    }
+  }
+
+  void _showSnackBar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
     );
   }
 
@@ -384,7 +392,7 @@ class _EmergencyContactHubState extends State<EmergencyContactHub> {
                                 const Icon(Icons.contact_phone, size: 64, color: Colors.grey),
                                 const SizedBox(height: 16),
                                 Text(
-                                  'No ${_selectedCategory} contacts found',
+                                  'No $_selectedCategory contacts found',
                                   style: const TextStyle(fontSize: 18, color: Colors.grey),
                                 ),
                               ],

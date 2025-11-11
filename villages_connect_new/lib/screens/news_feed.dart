@@ -107,7 +107,7 @@ class _NewsFeedState extends State<NewsFeed> {
 
   // Sample news articles (fallback)
   final List<NewsArticle> allArticles = [
-    NewsArticle(
+    const NewsArticle(
       id: '1',
       title: 'New Fitness Classes Starting Next Month',
       summary: 'The Villages Recreation Department is excited to announce a series of new fitness classes designed specifically for our active senior community.',
@@ -119,7 +119,7 @@ class _NewsFeedState extends State<NewsFeed> {
       likes: 24,
       comments: 8,
     ),
-    NewsArticle(
+    const NewsArticle(
       id: '2',
       title: 'Community Garden Expansion Project',
       summary: 'Plans are underway to expand the popular community garden with new plots and improved facilities.',
@@ -131,7 +131,7 @@ class _NewsFeedState extends State<NewsFeed> {
       likes: 31,
       comments: 12,
     ),
-    NewsArticle(
+    const NewsArticle(
       id: '3',
       title: 'Weather Preparedness Workshop',
       summary: 'Free workshop on preparing for severe weather events, including hurricanes and thunderstorms.',
@@ -143,7 +143,7 @@ class _NewsFeedState extends State<NewsFeed> {
       likes: 18,
       comments: 5,
     ),
-    NewsArticle(
+    const NewsArticle(
       id: '4',
       title: 'Art Show Winners Announced',
       summary: 'Congratulations to all participants in this year\'s annual art show. The winners have been selected!',
@@ -155,7 +155,7 @@ class _NewsFeedState extends State<NewsFeed> {
       likes: 27,
       comments: 15,
     ),
-    NewsArticle(
+    const NewsArticle(
       id: '5',
       title: 'Technology Help Sessions',
       summary: 'Weekly technology help sessions now available for residents needing assistance with computers and smartphones.',
@@ -167,7 +167,7 @@ class _NewsFeedState extends State<NewsFeed> {
       likes: 22,
       comments: 7,
     ),
-    NewsArticle(
+    const NewsArticle(
       id: '6',
       title: 'Volunteer Opportunities Available',
       summary: 'Several new volunteer positions are available for residents interested in giving back to the community.',
@@ -460,7 +460,7 @@ class NewsArticleCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         article.author,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey[600],
                         ),
@@ -473,7 +473,7 @@ class NewsArticleCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         '${article.readTime} min read',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey[600],
                         ),
@@ -483,7 +483,7 @@ class NewsArticleCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         article.likes.toString(),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey[600],
                         ),
@@ -493,7 +493,7 @@ class NewsArticleCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         article.comments.toString(),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey[600],
                         ),
@@ -621,7 +621,7 @@ class ArticleDetailScreen extends StatelessWidget {
                 const SizedBox(width: 4),
                 Text(
                   'By ${article.author}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey[600],
                   ),
@@ -631,7 +631,7 @@ class ArticleDetailScreen extends StatelessWidget {
                 const SizedBox(width: 4),
                 Text(
                   '${article.readTime} min read',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey[600],
                   ),

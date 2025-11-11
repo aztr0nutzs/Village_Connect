@@ -29,12 +29,14 @@ void main() async {
   final accessibilityService = AccessibilityService(storageService);
   final cacheService = CacheService(storageService);
 
-  // Wait for services to initialize
+  // Wait for services to finish their asynchronous bootstrapping before
+  // rendering the UI. This prevents layout flashes that can occur when
+  // providers notify listeners during the first build.
   await Future.wait([
-    authService._initializeAuth(),
-    notificationService._initializeService(),
-    accessibilityService._initializeService(),
-    cacheService._initializeCache(),
+    authService.ensureInitialized(),
+    notificationService.ensureInitialized(),
+    accessibilityService.ensureInitialized(),
+    cacheService.ensureInitialized(),
   ]);
 
   runApp(
@@ -67,11 +69,6 @@ class VillagesConnectApp extends StatelessWidget {
           darkTheme: _buildTheme(Brightness.dark, accessibility),
           themeMode: ThemeMode.system, // TODO: Make this configurable
 
-          // Accessibility tools for development
-          builder: (context, child) => AccessibilityTools(
-            child: child!,
-          ),
-
           // Route configuration
           initialRoute: '/',
           routes: {
@@ -99,14 +96,14 @@ class VillagesConnectApp extends StatelessWidget {
                       const SizedBox(height: 16),
                       Text(
                         'Something went wrong!',
-                        style: Theme.of(context).textTheme.headline6,
+                        style: Theme.of(context).textTheme.titleLarge,
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
                       Text(
                         errorDetails.exception.toString(),
                         textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyText2,
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton(
@@ -121,7 +118,13 @@ class VillagesConnectApp extends StatelessWidget {
                 ),
               );
             };
-            return widget!;
+            if (widget == null) {
+              return const SizedBox.shrink();
+            }
+
+            return AccessibilityTools(
+              child: widget,
+            );
           },
         );
       },

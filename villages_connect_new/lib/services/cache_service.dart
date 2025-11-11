@@ -1,9 +1,8 @@
-import 'dart:convert';
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:path_provider/path_provider.dart';
 import 'storage_service.dart';
 
 // Cache Configuration
@@ -120,8 +119,9 @@ class CacheService extends ChangeNotifier {
   final DefaultCacheManager _cacheManager;
   final Connectivity _connectivity;
 
-  ConnectivityResult _connectivityResult = ConnectivityResult.none;
+  List<ConnectivityResult> _connectivityResult = [ConnectivityResult.none];
   bool _isOnline = false;
+  late final Future<void> _initialization;
 
   // Cached data
   CachedEventsData? _eventsData;
@@ -131,14 +131,16 @@ class CacheService extends ChangeNotifier {
   CacheService(this._storageService)
       : _cacheManager = DefaultCacheManager(),
         _connectivity = Connectivity() {
-    _initializeCache();
+    _initialization = _initializeCache();
   }
+
+  Future<void> ensureInitialized() => _initialization;
 
   Future<void> _initializeCache() async {
     try {
       // Initialize connectivity monitoring
       _connectivityResult = await _connectivity.checkConnectivity();
-      _isOnline = _connectivityResult != ConnectivityResult.none;
+      _isOnline = !_connectivityResult.contains(ConnectivityResult.none);
 
       // Listen to connectivity changes
       _connectivity.onConnectivityChanged.listen(_onConnectivityChanged);
@@ -152,10 +154,10 @@ class CacheService extends ChangeNotifier {
     }
   }
 
-  void _onConnectivityChanged(ConnectivityResult result) {
+  void _onConnectivityChanged(List<ConnectivityResult> result) {
     final wasOnline = _isOnline;
     _connectivityResult = result;
-    _isOnline = result != ConnectivityResult.none;
+    _isOnline = !result.contains(ConnectivityResult.none);
 
     if (!wasOnline && _isOnline) {
       // Came back online - trigger sync
@@ -184,7 +186,7 @@ class CacheService extends ChangeNotifier {
   }
 
   // Connectivity Status
-  ConnectivityResult get connectivityResult => _connectivityResult;
+  List<ConnectivityResult> get connectivityResult => _connectivityResult;
   bool get isOnline => _isOnline;
   bool get isOffline => !_isOnline;
 
@@ -253,7 +255,7 @@ class CacheService extends ChangeNotifier {
     if (!_isOnline) return;
 
     try {
-      // TODO: Replace with actual API call
+      // Placeholder: replace with actual API call when backend is ready.
       final eventsData = await _fetchEventsFromAPI();
 
       _eventsData = CachedEventsData(
@@ -270,7 +272,7 @@ class CacheService extends ChangeNotifier {
   }
 
   Future<List<Map<String, dynamic>>> _fetchEventsFromAPI() async {
-    // TODO: Implement actual API call
+    // Placeholder: implement actual API call when backend is available.
     // For now, return default data
     await Future.delayed(const Duration(seconds: 1)); // Simulate network delay
     return _getDefaultEventsData();
@@ -422,7 +424,7 @@ class CacheService extends ChangeNotifier {
     try {
       // Preload critical assets
       for (final assetPath in assetPaths) {
-        // TODO: Implement asset preloading logic
+        // Placeholder: implement asset preloading logic when assets are defined.
         debugPrint('Preloading asset: $assetPath');
       }
     } catch (e) {
@@ -458,23 +460,15 @@ class CacheService extends ChangeNotifier {
 
   // Cache Statistics
   Future<Map<String, dynamic>> getCacheStats() async {
-    try {
-      final cacheStats = await _cacheManager.getFileCount();
-      final cacheSize = await _cacheManager.getCacheSize();
-
-      return {
-        'fileCount': cacheStats,
-        'cacheSize': cacheSize,
-        'eventsCached': _eventsData != null,
-        'centersCached': _centersData != null,
-        'mapsCached': _mapsData != null,
-        'isOnline': _isOnline,
-        'connectivity': _connectivityResult.toString(),
-      };
-    } catch (e) {
-      debugPrint('Error getting cache stats: $e');
-      return {};
-    }
+    return {
+      'fileCount': null,
+      'cacheSize': null,
+      'eventsCached': _eventsData != null,
+      'centersCached': _centersData != null,
+      'mapsCached': _mapsData != null,
+      'isOnline': _isOnline,
+      'connectivity': _connectivityResult.toString(),
+    };
   }
 
   // Background Sync
@@ -510,8 +504,9 @@ class CacheService extends ChangeNotifier {
   }
 
   // Cleanup
-  Future<void> dispose() async {
-    await _cacheManager.dispose();
+  @override
+  void dispose() {
+    unawaited(_cacheManager.dispose());
     super.dispose();
   }
 }

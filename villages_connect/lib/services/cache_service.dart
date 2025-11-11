@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
@@ -128,11 +129,16 @@ class CacheService extends ChangeNotifier {
   CachedCentersData? _centersData;
   CachedMapsData? _mapsData;
 
+  late final Future<void> _initialization;
+  StreamSubscription<ConnectivityResult>? _connectivitySubscription;
+
   CacheService(this._storageService)
       : _cacheManager = DefaultCacheManager(),
         _connectivity = Connectivity() {
-    _initializeCache();
+    _initialization = _initializeCache();
   }
+
+  Future<void> ensureInitialized() => _initialization;
 
   Future<void> _initializeCache() async {
     try {
@@ -141,7 +147,8 @@ class CacheService extends ChangeNotifier {
       _isOnline = _connectivityResult != ConnectivityResult.none;
 
       // Listen to connectivity changes
-      _connectivity.onConnectivityChanged.listen(_onConnectivityChanged);
+      _connectivitySubscription =
+          _connectivity.onConnectivityChanged.listen(_onConnectivityChanged);
 
       // Load cached data
       await _loadCachedData();
@@ -510,8 +517,10 @@ class CacheService extends ChangeNotifier {
   }
 
   // Cleanup
-  Future<void> dispose() async {
-    await _cacheManager.dispose();
+  @override
+  void dispose() {
+    _connectivitySubscription?.cancel();
+    unawaited(_cacheManager.dispose());
     super.dispose();
   }
 }

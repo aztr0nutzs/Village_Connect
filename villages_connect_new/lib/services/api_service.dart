@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -158,17 +158,20 @@ class RecreationCenter {
     if (userLat == null || userLng == null) return null;
 
     const double earthRadius = 6371; // km
-    final dLat = _degreesToRadians(latitude - userLat);
-    final dLng = _degreesToRadians(longitude - userLng);
+    final double lat1 = _degreesToRadians(userLat);
+    final double lat2 = _degreesToRadians(latitude);
+    final double dLat = lat2 - lat1;
+    final double dLng = _degreesToRadians(longitude - userLng);
 
-    final a = (dLat / 2).sin() * (dLat / 2).sin() +
-        userLat.cos() * latitude.cos() * (dLng / 2).sin() * (dLng / 2).sin();
-    final c = 2 * a.atan2((1 - a).sqrt());
+    final double sinLat = math.sin(dLat / 2);
+    final double sinLng = math.sin(dLng / 2);
+    final double a = (sinLat * sinLat) + math.cos(lat1) * math.cos(lat2) * (sinLng * sinLng);
+    final double c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
 
     return earthRadius * c * 0.621371; // Convert to miles
   }
 
-  double _degreesToRadians(double degrees) => degrees * (3.141592653589793 / 180);
+  double _degreesToRadians(double degrees) => degrees * (math.pi / 180);
 }
 
 // API Event Model (different from cached event)
@@ -185,7 +188,7 @@ class ApiEvent {
   final int currentAttendees;
   final String status; // 'upcoming', 'ongoing', 'completed', 'cancelled'
   final String imageUrl;
-  final String registrationUrl;
+  final String? registrationUrl;
   final List<String> tags;
 
   ApiEvent({
@@ -201,7 +204,7 @@ class ApiEvent {
     required this.currentAttendees,
     required this.status,
     required this.imageUrl,
-    required this.registrationUrl,
+    this.registrationUrl,
     required this.tags,
   });
 
@@ -218,7 +221,7 @@ class ApiEvent {
         currentAttendees: json['currentAttendees'] ?? json['registered'] ?? 0,
         status: json['status'] ?? 'upcoming',
         imageUrl: json['imageUrl'] ?? json['image'] ?? '',
-        registrationUrl: json['registrationUrl'] ?? json['register_url'] ?? null,
+        registrationUrl: json['registrationUrl'] ?? json['register_url'],
         tags: List<String>.from(json['tags'] ?? []),
       );
 
@@ -270,14 +273,17 @@ class ApiService extends ChangeNotifier {
   DateTime? _lastNewsFetch;
   DateTime? _lastEventsFetch;
   DateTime? _lastRecCentersFetch;
+  late final Future<void> _initialization;
 
   static const Duration _cacheExpiry = Duration(hours: 6); // 6 hours for API data
 
   ApiService(this._storageService) {
-    _initializeService();
+    _initialization = _initializeService();
   }
 
-  void _initializeService() {
+  Future<void> ensureInitialized() => _initialization;
+
+  Future<void> _initializeService() async {
     // Initialize Dio
     _dio = Dio(BaseOptions(
       baseUrl: ApiConfig.baseUrl,
@@ -311,7 +317,7 @@ class ApiService extends ChangeNotifier {
             final retryCount = error.requestOptions.extra['retry'] ?? 0;
             if (retryCount < ApiConfig.maxRetries) {
               error.requestOptions.extra['retry'] = retryCount + 1;
-              await Future.delayed(Duration(seconds: 1));
+              await Future.delayed(const Duration(seconds: 1));
               return handler.resolve(await _dio.fetch(error.requestOptions));
             }
           }
@@ -325,12 +331,12 @@ class ApiService extends ChangeNotifier {
     _connectivity.onConnectivityChanged.listen(_onConnectivityChanged);
 
     // Check initial connectivity
-    _checkConnectivity();
+    await _checkConnectivity();
   }
 
-  void _onConnectivityChanged(ConnectivityResult result) {
+  void _onConnectivityChanged(List<ConnectivityResult> result) {
     final wasOnline = _isOnline;
-    _isOnline = result != ConnectivityResult.none;
+    _isOnline = !result.contains(ConnectivityResult.none);
 
     if (wasOnline != _isOnline) {
       notifyListeners();
@@ -341,7 +347,7 @@ class ApiService extends ChangeNotifier {
   Future<void> _checkConnectivity() async {
     try {
       final result = await _connectivity.checkConnectivity();
-      _isOnline = result != ConnectivityResult.none;
+      _isOnline = !result.contains(ConnectivityResult.none);
     } catch (e) {
       _isOnline = false;
       debugPrint('Error checking connectivity: $e');
