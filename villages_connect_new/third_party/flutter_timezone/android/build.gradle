@@ -1,36 +1,23 @@
-buildscript {
-    ext.kotlin_version = '2.1.0'
-    repositories {
-        google()
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath 'com.android.tools.build:gradle:8.9.1'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
 }
 
-rootProject.allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+def flutterExtension = project.extensions.findByName("flutter") ?: rootProject.extensions.findByName("flutter")
+def compileSdkValue = flutterExtension?.compileSdkVersion ?: 36
+def minSdkValue = flutterExtension?.minSdkVersion ?: 24
+def targetSdkValue = flutterExtension?.targetSdkVersion ?: compileSdkValue
 
 android {
     namespace = 'net.wolverinebeach.flutter_timezone'
-    compileSdk = 36
+    compileSdk = compileSdkValue
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
     defaultConfig {
-        targetSdk = 36
-        minSdk = 24
+        targetSdk = targetSdkValue
+        minSdk = minSdkValue
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
     lint {
@@ -43,8 +30,4 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
-}
-
-dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
