@@ -21,6 +21,7 @@ import 'screens/settings_screen.dart';
 import 'screens/rec_center_directory.dart';
 import 'screens/emergency_contact_hub.dart';
 import 'utils/platform_capabilities.dart';
+import 'widgets/global_screen_header.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -66,7 +67,7 @@ void main() async {
     runApp(
       MultiProvider(
         providers: [
-          Provider<StorageService>.value(value: storageService),
+          ChangeNotifierProvider<StorageService>.value(value: storageService),
           ChangeNotifierProvider<AuthService>.value(value: authService),
           ChangeNotifierProvider<NotificationService>.value(value: notificationService),
           ChangeNotifierProvider<AccessibilityService>.value(value: accessibilityService),
@@ -195,7 +196,12 @@ class VillagesConnectApp extends StatelessWidget {
             }
 
             return AccessibilityTools(
-              child: widget,
+              child: Column(
+                children: [
+                  const GlobalScreenHeader(),
+                  Expanded(child: widget),
+                ],
+              ),
             );
           },
         );

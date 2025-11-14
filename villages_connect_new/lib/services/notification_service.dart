@@ -216,10 +216,10 @@ class NotificationService extends ChangeNotifier {
     try {
       final dynamic tzInfo = await FlutterTimezone.getLocalTimezone();
       if (tzInfo is String && tzInfo.isNotEmpty) {
-        return tzInfo;
+        return _normalizeTimeZoneName(tzInfo);
       }
       if (tzInfo is Map && tzInfo['name'] is String && (tzInfo['name'] as String).isNotEmpty) {
-        return tzInfo['name'] as String;
+        return _normalizeTimeZoneName(tzInfo['name'] as String);
       }
     } on MissingPluginException catch (e) {
       debugPrint('flutter_timezone plugin unavailable on this platform: $e');
@@ -231,9 +231,34 @@ class NotificationService extends ChangeNotifier {
 
     final systemGuess = DateTime.now().timeZoneName;
     if (systemGuess.isNotEmpty) {
-      return systemGuess;
+      return _normalizeTimeZoneName(systemGuess);
     }
     return 'UTC';
+  }
+
+  String _normalizeTimeZoneName(String name) {
+    final normalized = name.trim();
+    if (normalized.contains('/')) {
+      return normalized;
+    }
+
+    const abbreviationMap = <String, String>{
+      'EST': 'America/New_York',
+      'EDT': 'America/New_York',
+      'CST': 'America/Chicago',
+      'CDT': 'America/Chicago',
+      'MST': 'America/Denver',
+      'MDT': 'America/Denver',
+      'PST': 'America/Los_Angeles',
+      'PDT': 'America/Los_Angeles',
+      'AKST': 'America/Anchorage',
+      'AKDT': 'America/Anchorage',
+      'HST': 'Pacific/Honolulu',
+      'GMT': 'Etc/GMT',
+      'UTC': 'UTC',
+    };
+
+    return abbreviationMap[normalized.toUpperCase()] ?? normalized;
   }
 
   // Preferences Management

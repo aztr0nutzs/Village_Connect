@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../services/auth_service.dart';
 
 // Login Screen
 class LoginScreen extends StatefulWidget {
@@ -23,36 +26,55 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  static const String _demoEmail = 'demo@villagesconnect.com';
+  static const String _demoPassword = 'demo123';
+
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
 
     try {
-      // Simulate login process
-      await Future.delayed(const Duration(seconds: 2));
+      final authService = context.read<AuthService>();
+      final email = _emailController.text.trim();
+      final password = _passwordController.text;
+
+      bool loginSucceeded = false;
+      String? fallbackError;
+
+      final isDemoCredentials =
+          email.toLowerCase() == _demoEmail && password == _demoPassword;
+
+      if (isDemoCredentials) {
+        loginSucceeded = await authService.enterGuestMode();
+      } else if (authService.supportsFirebaseAuth) {
+        loginSucceeded = await authService.signInWithEmailAndPassword(email, password);
+      } else {
+        fallbackError = 'Email sign-in is unavailable on this device. Use the demo credentials below.';
+      }
 
       if (!mounted) return;
 
-      if (_emailController.text.isNotEmpty && _passwordController.text.isNotEmpty) {
-        // Login successful - navigate to main app
-        await Navigator.of(context).pushReplacementNamed('/dashboard');
+      if (loginSucceeded) {
+        await Navigator.of(context).pushReplacementNamed('/home');
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please enter valid credentials')),
-        );
+        _showSnackbar(authService.errorMessage ?? fallbackError ?? 'Please check your email and password.');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('An error occurred during login.')),
-        );
+        _showSnackbar('An error occurred during login: $e');
       }
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  void _showSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   @override

@@ -115,6 +115,8 @@ class AuthService extends ChangeNotifier {
 
   Future<void> ensureInitialized() => _initialization;
 
+  bool get supportsFirebaseAuth => _canUseFirebaseAuth;
+
   Future<void> _initializeAuth() async {
     try {
       _authState = AuthState.loading;

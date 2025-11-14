@@ -55,3 +55,25 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/vlgcnct1.png
+
+dependency_overrides:
+  connectivity_plus:
+    path: third_party/plugins/connectivity_plus
+  firebase_auth:
+    path: third_party/plugins/firebase_auth
+  firebase_core:
+    path: third_party/plugins/firebase_core
+  flutter_local_notifications:
+    path: third_party/plugins/flutter_local_notifications
+  flutter_secure_storage:
+    path: third_party/plugins/flutter_secure_storage
+  flutter_tts:
+    path: third_party/plugins/flutter_tts
+  geolocator_android:
+    path: third_party/plugins/geolocator_android
+  package_info_plus:
+    path: third_party/plugins/package_info_plus
+  sqflite_android:
+    path: third_party/plugins/sqflite_android
