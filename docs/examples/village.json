@@ -1,0 +1,16 @@
+{
+  "id": "vil-001",
+  "name": "Mulberry Grove",
+  "district": "District 5",
+  "region": "Central",
+  "zip_code": "32162",
+  "established_year": 2005,
+  "population": 2500,
+  "description": "A vibrant community in the heart of The Villages featuring beautiful homes and easy access to the Spanish Springs Town Square.",
+  "featured_amenities": [
+    "Recreation Center",
+    "Golf Course",
+    "Walking Trails",
+    "Dog Park"
+  ]
+}
