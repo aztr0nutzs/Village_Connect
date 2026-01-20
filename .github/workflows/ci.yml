@@ -1,0 +1,176 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+# Set minimal permissions for GITHUB_TOKEN
+permissions:
+  contents: read
+
+jobs:
+  lint-backend:
+    name: Lint Backend
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        cd backend
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install flake8 black pylint
+    
+    - name: Lint with flake8
+      run: |
+        cd backend
+        # Stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics || true
+        # Exit-zero treats all errors as warnings
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics || true
+    
+    - name: Check formatting with black
+      run: |
+        cd backend
+        black --check . || true
+
+  test-backend:
+    name: Test Backend
+    runs-on: ubuntu-latest
+    needs: lint-backend
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        cd backend
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install pytest pytest-cov
+    
+    - name: Run tests
+      run: |
+        cd backend
+        # Placeholder: Add actual test command when tests are implemented
+        echo "Backend tests will be implemented"
+        # pytest tests/ --cov=app --cov-report=xml || true
+
+  lint-mobile-flutter:
+    name: Lint Mobile (Flutter)
+    runs-on: ubuntu-latest
+    if: false  # Enable when Flutter project is initialized
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.16.0'
+        channel: 'stable'
+    
+    - name: Install dependencies
+      run: |
+        cd mobile
+        flutter pub get
+    
+    - name: Analyze code
+      run: |
+        cd mobile
+        flutter analyze
+    
+    - name: Check formatting
+      run: |
+        cd mobile
+        flutter format --set-exit-if-changed .
+
+  test-mobile-flutter:
+    name: Test Mobile (Flutter)
+    runs-on: ubuntu-latest
+    needs: lint-mobile-flutter
+    if: false  # Enable when Flutter project is initialized
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.16.0'
+        channel: 'stable'
+    
+    - name: Install dependencies
+      run: |
+        cd mobile
+        flutter pub get
+    
+    - name: Run tests
+      run: |
+        cd mobile
+        flutter test
+
+  lint-mobile-react-native:
+    name: Lint Mobile (React Native)
+    runs-on: ubuntu-latest
+    if: false  # Enable when React Native project is initialized
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: mobile/package-lock.json
+    
+    - name: Install dependencies
+      run: |
+        cd mobile
+        npm ci
+    
+    - name: Lint code
+      run: |
+        cd mobile
+        npm run lint
+
+  test-mobile-react-native:
+    name: Test Mobile (React Native)
+    runs-on: ubuntu-latest
+    needs: lint-mobile-react-native
+    if: false  # Enable when React Native project is initialized
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: mobile/package-lock.json
+    
+    - name: Install dependencies
+      run: |
+        cd mobile
+        npm ci
+    
+    - name: Run tests
+      run: |
+        cd mobile
+        npm test

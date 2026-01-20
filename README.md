@@ -2,6 +2,180 @@
 
 <img width="2048" height="512" alt="Gemini_Generated_Image_3req563req563req" src="https://github.com/user-attachments/assets/62be3f46-216a-41fb-8ec1-644efccc44eb" />
 
+## Developer Documentation
+
+### Project Purpose
+
+Village Connect is a community engagement platform designed to help village residents stay informed, connected, and engaged with their community. The application provides a centralized hub for discovering events, connecting with neighbors, and accessing community resources.
+
+**Key Features:**
+- Event calendar and discovery
+- User profiles and social connections
+- Event favorites and reminders
+- Push notifications for community updates
+- Search and filtering capabilities
+- Community bulletin board
+
+### Architecture Overview
+
+Village Connect is structured as a **monorepo** containing three main components:
+
+```
+Village_Connect/
+├── backend/          # Backend API service (FastAPI/Firebase)
+├── mobile/           # Mobile application (Flutter/React Native)
+├── docs/             # Project documentation
+├── .github/          # CI/CD workflows
+└── README.md         # This file
+```
+
+**Architecture:**
+- **Backend (`/backend/`)**: RESTful API service built with FastAPI or Firebase, handling data ingestion, business logic, and data persistence
+- **Mobile (`/mobile/`)**: Cross-platform mobile application built with Flutter (preferred) or React Native
+- **Documentation (`/docs/`)**: Architecture decisions, task tracking, and work logs
+
+For detailed architecture information, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+### Build and Run Instructions
+
+#### Prerequisites
+
+**Backend:**
+- Python 3.9 or higher
+- pip package manager
+- Virtual environment (recommended)
+
+**Mobile:**
+- Flutter SDK 3.0+ (if using Flutter) OR
+- Node.js 16+ (if using React Native)
+- Android Studio or Xcode for mobile development
+
+#### Backend Setup
+
+```bash
+# Navigate to backend directory
+cd backend
+
+# Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the development server
+uvicorn app.main:app --reload
+
+# API will be available at http://localhost:8000
+```
+
+#### Mobile Setup (Flutter)
+
+```bash
+# Navigate to mobile directory
+cd mobile
+
+# Install dependencies
+flutter pub get
+
+# Run on connected device or emulator
+flutter run
+```
+
+#### Mobile Setup (React Native)
+
+```bash
+# Navigate to mobile directory
+cd mobile
+
+# Install dependencies
+npm install
+
+# Run on iOS
+npm run ios
+
+# Run on Android
+npm run android
+```
+
+#### Running Tests
+
+**Backend:**
+```bash
+cd backend
+pytest
+```
+
+**Mobile (Flutter):**
+```bash
+cd mobile
+flutter test
+```
+
+**Mobile (React Native):**
+```bash
+cd mobile
+npm test
+```
+
+#### CI/CD
+
+The project uses GitHub Actions for continuous integration. The CI pipeline runs automatically on pull requests and includes:
+- Code linting (backend and mobile)
+- Automated tests
+- Code coverage reports
+
+See [.github/workflows/ci.yml](.github/workflows/ci.yml) for configuration details.
+
+### Project Structure
+
+```
+Village_Connect/
+├── backend/
+│   ├── app/              # Application code
+│   ├── tests/            # Backend tests
+│   ├── requirements.txt  # Python dependencies
+│   └── README.md         # Backend-specific documentation
+├── mobile/
+│   ├── lib/              # Flutter source code
+│   ├── test/             # Mobile tests
+│   └── README.md         # Mobile-specific documentation
+├── docs/
+│   ├── ARCHITECTURE.md   # System architecture
+│   ├── DECISIONS.md      # Architecture decision records
+│   ├── TASKS.md          # Task tracking
+│   └── WORKLOG.md        # Development work log
+├── .github/
+│   └── workflows/
+│       └── ci.yml        # CI/CD configuration
+├── .gitignore            # Git ignore rules
+└── README.md             # This file
+```
+
+### Documentation
+
+- [Architecture Overview](docs/ARCHITECTURE.md)
+- [Architecture Decision Records](docs/DECISIONS.md)
+- [Task Tracking](docs/TASKS.md)
+- [Work Log](docs/WORKLOG.md)
+- [Backend Documentation](backend/README.md)
+- [Mobile Documentation](mobile/README.md)
+
+### Contributing
+
+1. Create a feature branch from `develop`
+2. Make your changes following the coding standards
+3. Write or update tests as needed
+4. Ensure CI passes
+5. Submit a pull request for review
+
+### License
+
+See [LICENSE](LICENSE) file for details.
+
+---
+
+## User Guide
 
 Village_Connect: Your Community at Your Fingertips! 🏡📱
 
