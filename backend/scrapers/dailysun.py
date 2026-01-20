@@ -2,6 +2,7 @@
 Daily Sun Event Scraper
 Fetches and parses community events from Daily Sun
 """
+import asyncio
 import logging
 import hashlib
 from datetime import datetime
@@ -378,13 +379,18 @@ def start_scheduler():
 
     scheduler = BackgroundScheduler()
 
-    async def job():
+    def job_wrapper():
+        """Wrapper to run async job in scheduler"""
+        asyncio.run(scheduled_job())
+
+    async def scheduled_job():
+        """Async job to fetch and store events"""
         scraper = DailySunScraper()
         await scraper.fetch_and_store_events()
 
     # Schedule job every 60 minutes
     scheduler.add_job(
-        lambda: __import__("asyncio").run(job()),
+        job_wrapper,
         "interval",
         minutes=60,
         id="dailysun_scraper",
@@ -427,6 +433,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    import asyncio
-
     asyncio.run(main())
