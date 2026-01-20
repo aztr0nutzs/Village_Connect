@@ -2,7 +2,7 @@
 Recreation Center schema for Village Connect.
 """
 
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -27,7 +27,7 @@ class RecCenter(BaseModel):
     website: Optional[str] = Field(
         None, description="Website URL for the recreation center"
     )
-    amenities: Optional[list[str]] = Field(
+    amenities: Optional[List[str]] = Field(
         None,
         description="List of amenities available (e.g., pool, tennis courts, gym)",
     )

@@ -2,7 +2,7 @@
 Village metadata schema for Village Connect.
 """
 
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -24,7 +24,7 @@ class Village(BaseModel):
         None, description="Approximate population of the village"
     )
     description: Optional[str] = Field(None, description="Description of the village")
-    featured_amenities: Optional[list[str]] = Field(
+    featured_amenities: Optional[List[str]] = Field(
         None, description="Notable amenities in this village"
     )
 

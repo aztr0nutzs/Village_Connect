@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
 from schemas import Event, RecCenter, Village
 
@@ -32,7 +33,7 @@ class TestEventSchema:
 
     def test_event_required_fields(self):
         """Test that Event schema enforces required fields."""
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             Event()  # Missing required fields
 
     def test_event_minimal_valid(self):
@@ -65,7 +66,7 @@ class TestRecCenterSchema:
 
     def test_rec_center_required_fields(self):
         """Test that RecCenter schema enforces required fields."""
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             RecCenter()  # Missing required fields
 
     def test_rec_center_minimal_valid(self):
@@ -98,7 +99,7 @@ class TestVillageSchema:
 
     def test_village_required_fields(self):
         """Test that Village schema enforces required fields."""
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             Village()  # Missing required fields
 
     def test_village_minimal_valid(self):
