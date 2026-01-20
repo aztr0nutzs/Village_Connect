@@ -13,6 +13,7 @@ class Source(Base):
     """
     SQLAlchemy model for event sources
     """
+
     __tablename__ = "sources"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -29,6 +30,7 @@ class Event(Base):
     """
     SQLAlchemy model for events
     """
+
     __tablename__ = "events"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -38,10 +40,10 @@ class Event(Base):
     location = Column(String(512), nullable=True)
     url = Column(String(1024), nullable=True)
     external_id = Column(String(255), unique=True, nullable=True, index=True)
-    
+
     # Source attribution
     source_id = Column(Integer, ForeignKey("sources.id"), nullable=False)
-    
+
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -57,6 +59,7 @@ class SourceSchema(BaseModel):
     """
     Pydantic schema for Source
     """
+
     id: Optional[int] = None
     name: str = Field(..., max_length=255)
     url: str = Field(..., max_length=512)
@@ -71,6 +74,7 @@ class EventSchema(BaseModel):
     """
     Pydantic schema for Event
     """
+
     id: Optional[int] = None
     title: str = Field(..., max_length=512)
     description: Optional[str] = None
@@ -90,6 +94,7 @@ class EventWithSourceSchema(BaseModel):
     """
     Event schema with source information
     """
+
     id: Optional[int] = None
     title: str
     description: Optional[str] = None

@@ -15,7 +15,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./village_connect.db")
 # Create SQLAlchemy engine
 engine = create_engine(
     DATABASE_URL,
-    connect_args={"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+    connect_args={"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {},
 )
 
 # Create SessionLocal class
