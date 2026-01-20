@@ -17,8 +17,12 @@ TEST_DATABASE_URL = "sqlite:///:memory:"
 def db_session():
     """
     Create a test database session for each test
+    Uses SQLite in-memory database for fast, isolated testing
     """
-    engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
+    # SQLite-specific: check_same_thread=False allows multi-threaded access
+    # This is safe for testing as each test gets its own in-memory database
+    connect_args = {"check_same_thread": False} if "sqlite" in TEST_DATABASE_URL else {}
+    engine = create_engine(TEST_DATABASE_URL, connect_args=connect_args)
     Base.metadata.create_all(bind=engine)
     TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     session = TestingSessionLocal()

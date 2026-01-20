@@ -26,6 +26,7 @@ backend_path = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(backend_path))
 
 from database import Base  # noqa: E402
+# Import models to register them with Base.metadata for Alembic autogeneration
 from models import Event, RecCenter  # noqa: E402, F401
 
 target_metadata = Base.metadata
