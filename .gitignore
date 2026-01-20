@@ -151,3 +151,6 @@ firebase-debug.log
 
 # Documentation
 docs/_build/
+
+# CodeQL
+_codeql_detected_source_root
