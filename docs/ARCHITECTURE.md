@@ -90,10 +90,10 @@ Village Connect is a community engagement platform designed to help residents st
 
 ## Technology Stack Summary
 
-| Component | Technology | Status |
-|-----------|-----------|--------|
-| Mobile Frontend | Flutter/React Native | TBD |
-| Backend API | FastAPI/Firebase | TBD |
-| Database | PostgreSQL/Firestore | TBD |
-| Authentication | JWT/Firebase Auth | TBD |
-| Hosting | Cloud Platform (AWS/GCP/Azure) | TBD |
+| Component           | Technology                    | Status |
+|---------------------|-------------------------------|--------|
+| Mobile Frontend     | Flutter/React Native          | TBD    |
+| Backend API         | FastAPI/Firebase              | TBD    |
+| Database            | PostgreSQL/Firestore          | TBD    |
+| Authentication      | JWT/Firebase Auth             | TBD    |
+| Hosting             | Cloud Platform (AWS/GCP/Azure)| TBD    |

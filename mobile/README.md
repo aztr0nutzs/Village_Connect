@@ -136,7 +136,7 @@ cd android
 **iOS:**
 ```bash
 cd ios
-xcodebuild -workspace YourApp.xcworkspace -scheme YourApp -configuration Release
+xcodebuild -workspace VillageConnect.xcworkspace -scheme VillageConnect -configuration Release
 ```
 
 ## Features
