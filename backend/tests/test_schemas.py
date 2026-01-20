@@ -2,7 +2,6 @@
 Test schemas and validate example fixtures
 """
 import json
-import os
 from pathlib import Path
 import pytest
 from datetime import datetime
