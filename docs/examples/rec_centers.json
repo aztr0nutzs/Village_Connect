@@ -1,0 +1,16 @@
+[
+  {
+    "id": 101,
+    "name": "Lakeview Recreation Center",
+    "address": "123 Lakeview Drive, The Villages, FL",
+    "phone": "352-555-0101",
+    "village_id": 201
+  },
+  {
+    "id": 102,
+    "name": "Harbor Recreation Center",
+    "address": "456 Harbor Way, The Villages, FL",
+    "phone": "352-555-0102",
+    "village_id": 202
+  }
+]

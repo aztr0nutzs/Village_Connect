@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "title": "Sunrise Yoga",
+    "description": "Start your day with a gentle yoga session.",
+    "start_time": "2026-01-21T07:30:00",
+    "end_time": "2026-01-21T08:30:00",
+    "location": "Lakeview Lawn",
+    "rec_center_id": 101
+  },
+  {
+    "id": 2,
+    "title": "Community Potluck",
+    "description": "Bring a dish to share and meet neighbors.",
+    "start_time": "2026-01-22T18:00:00",
+    "end_time": "2026-01-22T20:00:00",
+    "location": "Harbor Hall",
+    "rec_center_id": 102
+  }
+]

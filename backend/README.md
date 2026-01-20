@@ -36,7 +36,7 @@ pip install -r requirements.txt
 python app.py
 
 # Or using uvicorn
-uvicorn app:app --reload --host 0.0.0.0 --port 8000
+uvicorn backend.app:app --reload --host 0.0.0.0 --port 8000
 ```
 
 The server will start on `http://localhost:8000`
@@ -70,13 +70,29 @@ backend/
 ### Health Check
 ```
 GET /
+GET /health
 GET /api/v1/health
 ```
 
-### Events (Placeholder)
+### Events (Mock data)
 ```
+GET /events
 GET /api/v1/events
 ```
+
+### Recreation Centers (Mock data)
+```
+GET /rec_centers
+```
+
+### Villages (Mock data)
+```
+GET /villages
+```
+
+### Example Fixtures
+
+Sample JSON fixtures live in `docs/examples/`, with JSON schema definitions in `docs/schemas/`.
 
 *More endpoints will be added as features are implemented.*
 
@@ -136,7 +152,7 @@ For production deployment:
 5. Enable HTTPS/SSL
 
 ```bash
-uvicorn app:app --host 0.0.0.0 --port 8000 --workers 4
+uvicorn backend.app:app --host 0.0.0.0 --port 8000 --workers 4
 ```
 
 ## Contributing

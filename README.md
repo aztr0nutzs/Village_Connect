@@ -138,7 +138,7 @@ Before you begin, ensure you have the following installed:
    
    Or with uvicorn:
    ```bash
-   uvicorn app:app --reload --host 0.0.0.0 --port 8000
+   uvicorn backend.app:app --reload --host 0.0.0.0 --port 8000
    ```
 
 5. **Access the API:**
@@ -478,4 +478,3 @@ Using new technology can be tricky, but don't worry. Help is always available. �
 **Made with ❤️ for The Villages Community**
 
 *Stay connected, stay engaged, stay active!*
-
