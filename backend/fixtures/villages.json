@@ -1,0 +1,16 @@
+[
+  {
+    "id": 201,
+    "name": "Lakeview",
+    "county": "Sumter",
+    "state": "FL",
+    "description": "Lakeside neighborhood with walking paths."
+  },
+  {
+    "id": 202,
+    "name": "Harbor",
+    "county": "Marion",
+    "state": "FL",
+    "description": "Harbor-side village with scenic views."
+  }
+]

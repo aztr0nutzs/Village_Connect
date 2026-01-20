@@ -1,3 +1,3 @@
-"""
-Data models and schemas
-"""
+"""Data models."""
+
+from .base import Base  # noqa: F401

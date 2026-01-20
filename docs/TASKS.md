@@ -9,6 +9,7 @@ This document tracks ongoing development tasks and issues for the Village Connec
 
 ### Completed
 - [x] Repository initialization and monorepo structure setup (#1)
+- [x] Added API schemas, fixtures, and mock endpoints (#2, #3)
 
 ## Backlog
 
