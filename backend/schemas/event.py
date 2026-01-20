@@ -4,7 +4,6 @@ Event schema definition using Pydantic
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, Field, ConfigDict
-from uuid import UUID
 
 
 class EventSource(BaseModel):
