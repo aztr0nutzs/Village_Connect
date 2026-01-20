@@ -1,0 +1,56 @@
+name: villages_connect
+description: A senior-friendly community app for The Villages, FL
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: ">=3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  provider: ^6.0.5
+  shared_preferences: ^2.2.0
+  intl: ^0.20.2
+  firebase_core: ^4.2.1
+  firebase_auth: ^6.1.2
+  firebase_messaging: ^16.0.4
+  flutter_local_notifications: ^19.5.0
+  timezone: ^0.10.1
+  flutter_timezone: ^5.0.1
+  flutter_tts: ^4.0.2
+  accessibility_tools: ^2.0.0
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  flutter_secure_storage: ^9.0.0
+  connectivity_plus: ^7.0.0
+  cached_network_image: ^3.3.0
+  flutter_cache_manager: ^3.3.0
+  path_provider: ^2.1.3
+  dio: ^5.4.0
+  google_maps_flutter: ^2.5.0
+  geolocator: ^14.0.2
+  url_launcher: ^6.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: fonts/Roboto-Regular.ttf
+        - asset: fonts/Roboto-Bold.ttf
+          weight: 700
+        - asset: fonts/Roboto-Medium.ttf
+          weight: 500
