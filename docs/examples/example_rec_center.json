@@ -1,0 +1,30 @@
+{
+  "id": "660e8400-e29b-41d4-a716-446655440001",
+  "name": "Everglades Recreation Center",
+  "address": "5497 Marsh Bend Trail, The Villages, FL 32163",
+  "phone": "(352) 674-1800",
+  "email": "info@evergladesrec.org",
+  "website": "https://www.districtgov.org/everglades",
+  "hours": {
+    "Monday": "8:00 AM - 9:00 PM",
+    "Tuesday": "8:00 AM - 9:00 PM",
+    "Wednesday": "8:00 AM - 9:00 PM",
+    "Thursday": "8:00 AM - 9:00 PM",
+    "Friday": "8:00 AM - 9:00 PM",
+    "Saturday": "8:00 AM - 5:00 PM",
+    "Sunday": "Closed"
+  },
+  "facilities": [
+    "Pool",
+    "Fitness Center",
+    "Tennis Courts",
+    "Pickleball Courts",
+    "Softball Fields",
+    "Meeting Rooms"
+  ],
+  "village": "The Villages",
+  "latitude": 28.9142,
+  "longitude": -81.9739,
+  "created_at": "2024-01-20T10:00:00",
+  "updated_at": "2024-01-20T10:00:00"
+}
