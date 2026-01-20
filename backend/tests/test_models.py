@@ -19,12 +19,17 @@ def db_session():
     Create a test database session for each test
     Uses SQLite in-memory database for fast, isolated testing
     """
-    # SQLite-specific: check_same_thread=False allows multi-threaded access
-    # This is safe for testing as each test gets its own in-memory database
-    connect_args = {"check_same_thread": False} if "sqlite" in TEST_DATABASE_URL else {}
+    # SQLite-specific: check_same_thread=False allows multi-threaded
+    # access. This is safe for testing as each test gets its own
+    # in-memory database
+    connect_args = (
+        {"check_same_thread": False} if "sqlite" in TEST_DATABASE_URL else {}
+    )
     engine = create_engine(TEST_DATABASE_URL, connect_args=connect_args)
     Base.metadata.create_all(bind=engine)
-    TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    TestingSessionLocal = sessionmaker(
+        autocommit=False, autoflush=False, bind=engine
+    )
     session = TestingSessionLocal()
     try:
         yield session
@@ -74,7 +79,9 @@ class TestEventModel:
         db_session.commit()
 
         # Fetch the event
-        fetched_event = db_session.query(Event).filter_by(title="Fitness Class").first()
+        fetched_event = (
+            db_session.query(Event).filter_by(title="Fitness Class").first()
+        )
         assert fetched_event is not None
         assert fetched_event.title == "Fitness Class"
         assert fetched_event.category == "fitness"
@@ -122,7 +129,9 @@ class TestEventModel:
         db_session.commit()
 
         # Fetch social events
-        social_events = db_session.query(Event).filter_by(category="social").all()
+        social_events = (
+            db_session.query(Event).filter_by(category="social").all()
+        )
         assert len(social_events) == 2
         assert all(e.category == "social" for e in social_events)
 
@@ -148,7 +157,9 @@ class TestEventModel:
 
         # Verify the update
         fetched_event = (
-            db_session.query(Event).filter_by(title="Update Test Event").first()
+            db_session.query(Event)
+            .filter_by(title="Update Test Event")
+            .first()
         )
         assert fetched_event.registered == 25
 
@@ -186,7 +197,11 @@ class TestRecCenterModel:
         db_session.commit()
 
         # Fetch the rec center
-        fetched = db_session.query(RecCenter).filter_by(name="Community Center").first()
+        fetched = (
+            db_session.query(RecCenter)
+            .filter_by(name="Community Center")
+            .first()
+        )
         assert fetched is not None
         assert fetched.name == "Community Center"
         assert fetched.address == "456 Main St, The Villages, FL"
@@ -240,7 +255,11 @@ class TestRecCenterModel:
         db_session.commit()
 
         # Verify the rec center was inserted
-        fetched = db_session.query(RecCenter).filter_by(name="Minimal Center").first()
+        fetched = (
+            db_session.query(RecCenter)
+            .filter_by(name="Minimal Center")
+            .first()
+        )
         assert fetched is not None
         assert fetched.name == "Minimal Center"
         assert fetched.address == "100 Min St"

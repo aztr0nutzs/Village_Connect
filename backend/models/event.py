@@ -8,7 +8,8 @@ from database import Base
 class Event(Base):
     """
     Event model representing community events
-    Based on the TypeScript Event interface from villages-connect/src/screens/Events.tsx
+    Based on the TypeScript Event interface from
+    villages-connect/src/screens/Events.tsx
     """
 
     __tablename__ = "events"
@@ -16,7 +17,8 @@ class Event(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False, index=True)
     description = Column(String, nullable=False)
-    date = Column(String, nullable=False)  # ISO date format (e.g., "2024-01-25")
+    # ISO date format (e.g., "2024-01-25")
+    date = Column(String, nullable=False)
     time = Column(
         String, nullable=False
     )  # Human-readable time (e.g., "2:00 PM - 4:00 PM")

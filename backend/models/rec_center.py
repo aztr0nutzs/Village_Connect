@@ -16,10 +16,13 @@ class RecCenter(Base):
     name = Column(String, nullable=False, index=True)
     address = Column(String, nullable=False)
     phone = Column(String, nullable=True)
-    hours = Column(String, nullable=True)  # e.g., "Mon-Fri: 8AM-5PM"
-    amenities = Column(String, nullable=True)  # Comma-separated list of amenities
+    # e.g., "Mon-Fri: 8AM-5PM"
+    hours = Column(String, nullable=True)
+    # Comma-separated list of amenities
+    amenities = Column(String, nullable=True)
 
     def __repr__(self):
         return (
-            f"<RecCenter(id={self.id}, name='{self.name}', address='{self.address}')>"
+            f"<RecCenter(id={self.id}, name='{self.name}', "
+            f"address='{self.address}')>"
         )
