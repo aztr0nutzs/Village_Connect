@@ -1,0 +1,21 @@
+{
+  "id": "rc-001",
+  "name": "Mulberry Grove Recreation Center",
+  "address": "8700 SE 165th Mulberry Lane, The Villages, FL 32162",
+  "village_id": "vil-001",
+  "phone": "(352) 753-4000",
+  "email": "mulberrygrove@thevillages.com",
+  "website": "https://www.thevillages.com/recreation/mulberry-grove",
+  "amenities": [
+    "Swimming Pool",
+    "Fitness Center",
+    "Pickleball Courts",
+    "Tennis Courts",
+    "Ballroom",
+    "Card Room",
+    "Craft Room"
+  ],
+  "hours_of_operation": "Monday-Sunday: 6:00 AM - 10:00 PM",
+  "latitude": 28.9001,
+  "longitude": -81.9750
+}
