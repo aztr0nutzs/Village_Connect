@@ -9,6 +9,7 @@ class RecCenter(Base):
     """
     RecCenter model representing recreation centers in the community
     """
+
     __tablename__ = "rec_centers"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -19,4 +20,6 @@ class RecCenter(Base):
     amenities = Column(String, nullable=True)  # Comma-separated list of amenities
 
     def __repr__(self):
-        return f"<RecCenter(id={self.id}, name='{self.name}', address='{self.address}')>"
+        return (
+            f"<RecCenter(id={self.id}, name='{self.name}', address='{self.address}')>"
+        )
